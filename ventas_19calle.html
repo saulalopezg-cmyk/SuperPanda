@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ventas – Super Panda</title>
+  <!-- Estilos base -->
+  <link rel="stylesheet" href="css/normalize.css" />
+  <link rel="stylesheet" href="css/sweetalert2.css" />
+  <link rel="stylesheet" href="css/material.min.css" />
+  <link rel="stylesheet" href="css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="css/jquery.mCustomScrollbar.css" />
+  <link rel="stylesheet" href="css/main.css" />
+  <!-- Scripts base -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/jquery-1.11.2.min.js"><\/script>')</script>
+  <script src="js/material.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<section class="full-width navLateral">
+  <div class="full-width navLateral-bg btn-menu"></div>
+  <div class="full-width navLateral-body">
+    <div class="full-width navLateral-body-logo text-center tittles">
+      <i class="zmdi zmdi-close btn-menu"></i> Ventas 19 Calle
+    </div>
+    <figure class="full-width" style="height: 77px;">
+      <div class="navLateral-body-cl">
+        <img src="assets/img/logo.png" alt="Logo" />
+      </div>
+      <figcaption class="navLateral-body-cr hide-on-tablet">
+        <span><br /><small></small></span>
+      </figcaption>
+    </figure>
+    <div class="full-width tittles navLateral-body-tittle-menu">
+      <i class="zmdi zmdi-desktop-mac"></i><span class="hide-on-tablet"> MENÚ</span>
+    </div>
+    <nav class="full-width">
+      <ul class="full-width list-unstyle menu-principal">
+        <li><a href="home_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-view-dashboard"></i></div><div class="navLateral-body-cr hide-on-tablet">Inicio</div></a></li>
+        <li><a href="inventory_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-store"></i></div><div class="navLateral-body-cr hide-on-tablet">Inventario</div></a></li>
+        <li><a href="client_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-accounts"></i></div><div class="navLateral-body-cr hide-on-tablet">Clientes</div></a></li>
+        <li><a href="sales_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-basket"></i></div><div class="navLateral-body-cr hide-on-tablet">Compras</div></a></li>
+        <li><a href="providers_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-truck"></i></div><div class="navLateral-body-cr hide-on-tablet">Proveedores</div></a></li>
+        <li><a href="ventas_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div><div class="navLateral-body-cr hide-on-tablet">Ventas</div></a></li>
+        <li><a href="cuentas-cobrar_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div><div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div></a></li>
+        <li><a href="generar_xls_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div><div class="navLateral-body-cr hide-on-tablet">Generar XLS</div></a></li>
+      </ul>
+    </nav>
+  </div>
+</section>
+
+<!-- NavBar -->
+<div class="full-width navBar">
+  <div class="full-width navBar-options">
+    <i class="zmdi zmdi-more-vert btn-menu" id="btn-menu"></i>
+    <nav class="navBar-options-list">
+      <ul class="list-unstyle">
+        <li class="btn-exit" onclick="logout()">
+          <i class="zmdi zmdi-power"></i>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<section class="full-width pageContent">
+  <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+    <div class="mdl-tabs__tab-bar">
+      <a href="#tabNewVenta" class="mdl-tabs__tab is-active">Registrar venta</a>
+      <a href="#tabListVentas" class="mdl-tabs__tab">Historial de ventas</a>
+    </div>
+
+    <!-- Registro de venta -->
+    <div class="mdl-tabs__panel is-active" id="tabNewVenta">
+      <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--8-col mdl-cell--2-offset-desktop">
+          <div class="full-width panel mdl-shadow--2dp">
+            <div class="full-width panel-tittle bg-primary text-center tittles">Registrar nueva venta</div>
+            <div class="full-width panel-content">
+              <form id="form-venta">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                  <select id="ventaCliente" class="mdl-textfield__input">
+                    <option value="">Selecciona un cliente</option>
+                  </select>
+                  <label class="mdl-textfield__label" for="ventaCliente"></label>
+                </div>
+
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                  <select id="ventaProducto" class="mdl-textfield__input">
+                    <option value="">Selecciona un producto</option>
+                  </select>
+                  <label class="mdl-textfield__label" for="ventaProducto"></label>
+                </div>
+
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                  <input type="number" id="ventaCantidad" class="mdl-textfield__input" />
+                  <label class="mdl-textfield__label" for="ventaCantidad">Cantidad</label>
+                </div>
+
+                <!-- Precio costo (solo lectura) -->
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                  <input type="number" id="ventaCosto" step="0.01" class="mdl-textfield__input" disabled />
+                  <label class="mdl-textfield__label" for="ventaCosto">Precio costo (Q)</label>
+                </div>
+
+                <!-- Checkboxes Descuentos -->
+                <div class="full-width" style="margin:6px 0 14px;">
+                  <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="descMayorista" style="margin-right:16px;">
+                    <input type="checkbox" id="descMayorista" class="mdl-checkbox__input">
+                    <span class="mdl-checkbox__label">Desc. Mayorista (5%)</span>
+                  </label>
+
+                  <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="descDocena" style="margin-right:16px;">
+                    <input type="checkbox" id="descDocena" class="mdl-checkbox__input">
+                    <span class="mdl-checkbox__label">Desc. Docena (3%)</span>
+                  </label>
+
+                  <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="descPolo">
+                    <input type="checkbox" id="descPolo" class="mdl-checkbox__input">
+                    <span class="mdl-checkbox__label">Desc. Polo (10%)</span>
+                  </label>
+                </div>
+
+                <p class="text-center">
+                  <button id="btn-agregarCarrito" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                    Agregar al carrito
+                  </button>
+                </p>
+              </form>
+
+              <div class="mdl-cell mdl-cell--12-col">
+                <h5 class="text-center">Carrito de venta</h5>
+                <table class="mdl-data-table mdl-js-data-table full-width" id="tablaCarrito">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Cantidad</th>
+                      <th>Precio unitario</th>
+                      <th>Subtotal</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="3"><strong>Total</strong></td>
+                      <td id="ventaTotal">Q0.00</td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <p class="text-center">
+                <button id="btn-finalizarVenta" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                  Finalizar venta
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historial de ventas -->
+    <div class="mdl-tabs__panel" id="tabListVentas">
+      <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--10-col mdl-cell--1-offset-desktop">
+          <div class="full-width panel mdl-shadow--2dp">
+            <div class="full-width panel-tittle bg-success text-center tittles">Historial de ventas</div>
+            <div class="full-width panel-content">
+              <div class="text-right">
+                <input type="date" id="filtroFecha" class="mdl-textfield__input" style="margin-right:10px;" />
+                <input type="text" id="filtroCliente" placeholder="Buscar por cliente..." class="mdl-textfield__input" style="width:30%;" />
+                <button id="btn-pdf-ventas" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                  <i class="zmdi zmdi-print"></i> Imprimir listado
+                </button>
+              </div>
+              <div class="mdl-list" id="lista-ventas"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- Fin historial -->
+  </div> <!-- Fin tabs -->
+</section>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+  import { getDatabase, ref, set, get, push, update, onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+  function registrarAccion(accion, modulo, detalles = {}) {
+    const user = auth.currentUser;
+    if (!user) return;
+    const registro = {
+      fecha: new Date().toISOString(),
+      uid: user.uid,
+      correo: user.email,
+      accion,
+      modulo,
+      detalles
+    };
+    push(ref(db, "registros"), registro);
+  }
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
+    authDomain: "superpanda-a89c0.firebaseapp.com",
+    projectId: "superpanda-a89c0",
+    storageBucket: "superpanda-a89c0.firebasestorage.app",
+    messagingSenderId: "730819312861",
+    appId: "1:730819312861:web:4a60912c859691d45a6f34"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      Swal.fire("Sesión cerrada", "Debes iniciar sesión para acceder", "info")
+        .then(() => window.location.href = "index.html");
+    }
+  });
+
+  // UI
+  const clienteSelect  = document.getElementById("ventaCliente");
+  const productoSelect = document.getElementById("ventaProducto");
+  const cantidadInput  = document.getElementById("ventaCantidad");
+  const tabla          = document.querySelector("#tablaCarrito tbody");
+  const totalDisplay   = document.getElementById("ventaTotal");
+  const listaVentas    = document.getElementById("lista-ventas");
+
+  // Costo y descuentos
+  const costoInput  = document.getElementById("ventaCosto");
+  const cbMayorista = document.getElementById("descMayorista");
+  const cbDocena    = document.getElementById("descDocena");
+  const cbPolo      = document.getElementById("descPolo");
+
+  let carrito = [];
+  let idVentaEditando = null;
+  let productosCache = {};
+
+  // Parse robusto
+  function leerNumero(v) {
+    if (v === undefined || v === null) return NaN;
+    if (typeof v === "number") return v;
+    if (typeof v === "string") {
+      const limpio = v.replace(/[^\d,.-]/g, "").replace(",", ".");
+      const n = parseFloat(limpio);
+      return isNaN(n) ? NaN : n;
+    }
+    return NaN;
+  }
+
+  // Obtener costo desde varias claves
+  function obtenerCosto(prod) {
+    const claves = [
+      "costo","precioCosto","costo_unitario","precioCostoUnitario",
+      "precio_costo","precioCompra","precio_compra","costoCompra"
+    ];
+    for (const k of claves) {
+      const n = leerNumero(prod?.[k]);
+      if (!isNaN(n)) return n;
+    }
+    // fallback opcional: si no hay costo, intenta con precio
+    const fb = leerNumero(prod?.precio);
+    return isNaN(fb) ? NaN : fb;
+  }
+
+  function q(n) { return "Q" + Number(n || 0).toFixed(2); }
+
+  // Cargar clientes y productos
+  window.addEventListener("DOMContentLoaded", () => {
+    get(ref(db, "clientes")).then((snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+      Object.entries(data).forEach(([codigo, cliente]) => {
+        const option = document.createElement("option");
+        option.value = codigo;
+        option.textContent = `${cliente.nombre} ${cliente.apellido}`;
+        clienteSelect.appendChild(option);
+      });
+    });
+
+    get(ref(db, "productos_19calle")).then((snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+      Object.entries(data).forEach(([codigo, prod]) => {
+        productosCache[codigo] = prod;
+        const option = document.createElement("option");
+        option.value = codigo;
+        option.textContent = `${prod.codigo} – ${prod.nombre}`;
+        productoSelect.appendChild(option);
+      });
+
+      // Mostrar SIEMPRE el costo (incluido 0.00) y mantener input bloqueado
+      productoSelect.addEventListener("change", () => {
+        const codigo = productoSelect.value;
+        const prod = productosCache[codigo];
+        const costo = obtenerCosto(prod);
+
+        const tfCosto = costoInput.closest(".mdl-textfield");
+        if (!isNaN(costo)) {
+          costoInput.value = Number(costo).toFixed(2);   // muestra 0.00 si es 0
+          tfCosto && tfCosto.classList.add("is-dirty");
+        } else {
+          // si no hay campo de costo en DB, muestra 0.00 para no dejarlo vacío
+          costoInput.value = "0.00";
+          tfCosto && tfCosto.classList.add("is-dirty");
+        }
+        costoInput.setAttribute("disabled", "disabled");
+
+        // limpiar checks al cambiar de producto
+        cbMayorista.checked = false;
+        cbDocena.checked    = false;
+        cbPolo.checked      = false;
+
+        if (window.componentHandler) componentHandler.upgradeDom();
+      });
+    });
+  });
+
+  // Agregar al carrito
+  document.getElementById("btn-agregarCarrito").addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const codigo = productoSelect.value;
+    const cantidad = parseInt(cantidadInput.value.trim());
+
+    if (!codigo || isNaN(cantidad) || cantidad <= 0) {
+      Swal.fire("Datos requeridos", "Selecciona producto y cantidad válida", "warning");
+      return;
+    }
+
+    const prod = productosCache[codigo];
+    if (!prod || cantidad > prod.cantidad) {
+      Swal.fire("Sin stock", `Solo hay ${prod?.cantidad ?? 0} disponibles`, "error");
+      return;
+    }
+
+    // Precio unitario con descuentos (aplicado al precio de lista)
+    const baseLista = leerNumero(prod.precio) || 0;
+    const descuento =
+      (cbMayorista.checked ? 0.05 : 0) +
+      (cbDocena.checked    ? 0.03 : 0) +
+      (cbPolo.checked      ? 0.10 : 0);
+
+    const precioUnit = baseLista * (1 - descuento);
+
+    // Agregar/actualizar línea del carrito
+    const existente = carrito.find(p => p.codigo === codigo);
+    if (existente) {
+      if ((existente.cantidad + cantidad) > prod.cantidad) {
+        Swal.fire("Stock insuficiente", "Superas la cantidad disponible", "error");
+        return;
+      }
+      existente.cantidad += cantidad; // conserva precio previo
+    } else {
+      carrito.push({
+        codigo,
+        nombre: prod.nombre,
+        precio: precioUnit,
+        cantidad
+      });
+    }
+
+    // Limpiar UI
+    cantidadInput.value = "";
+    productoSelect.selectedIndex = 0;
+    const tfCosto = costoInput.closest(".mdl-textfield");
+    costoInput.value = "";
+    tfCosto && tfCosto.classList.remove("is-dirty");
+    cbMayorista.checked = cbDocena.checked = cbPolo.checked = false;
+    if (window.componentHandler) componentHandler.upgradeDom();
+
+    renderizarCarrito();
+  });
+
+  function renderizarCarrito() {
+    tabla.innerHTML = "";
+    let total = 0;
+    carrito.forEach((item, i) => {
+      const subtotal = item.cantidad * item.precio;
+      total += subtotal;
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.nombre}</td>
+        <td>${item.cantidad}</td>
+        <td>${q(item.precio)}</td>
+        <td>${q(subtotal)}</td>
+        <td><button onclick="eliminarDelCarrito(${i})" class="mdl-button mdl-button--icon">
+          <i class="zmdi zmdi-close"></i></button></td>
+      `;
+      tabla.appendChild(row);
+    });
+    totalDisplay.textContent = q(total);
+  }
+
+  window.eliminarDelCarrito = function (index) {
+    carrito.splice(index, 1);
+    renderizarCarrito();
+  };
+
+  // Finalizar venta
+  document.getElementById("btn-finalizarVenta").addEventListener("click", () => {
+    const cliente = clienteSelect.value;
+    if (!cliente) {
+      Swal.fire("Selecciona cliente", "", "info");
+      return;
+    }
+    if (carrito.length === 0) {
+      Swal.fire("Carrito vacío", "Agrega al menos un producto", "warning");
+      return;
+    }
+    const venta = {
+      cliente,
+      fecha: new Date().toISOString().split("T")[0],
+      total: carrito.reduce((t, p) => t + (p.precio * p.cantidad), 0),
+      productos: carrito.map(p => ({ codigo: p.codigo, nombre: p.nombre, cantidad: p.cantidad, precio: p.precio }))
+    };
+
+    get(ref(db, "ventas_19calle")).then(snapshot => {
+      const data = snapshot.val() || {};
+      const codigos = Object.values(data)
+        .map(v => parseInt((v.codigo || "V000").replace("V", "")))
+        .filter(n => !isNaN(n));
+      const max = codigos.length ? Math.max(...codigos) : 0;
+      venta.codigo = "V" + (max + 1).toString().padStart(3, "0");
+
+      const refVenta = idVentaEditando
+        ? ref(db, "ventas_19calle/" + idVentaEditando)
+        : push(ref(db, "ventas_19calle"));
+
+      return set(refVenta, venta);
+    }).then(() => {
+      registrarAccion("registró una venta", "ventas_19calle", {
+        codigo: venta.codigo,
+        cliente: clienteSelect.querySelector(`option[value="${venta.cliente}"]`)?.textContent ?? venta.cliente,
+        total: venta.total,
+        productos: venta.productos.map(p => `${p.nombre} (${p.cantidad})`)
+      });
+
+      // actualizar stock
+      venta.productos.forEach(p => {
+        const prodRef = ref(db, "productos_19calle/" + p.codigo);
+        get(prodRef).then(snap => {
+          const actual = snap.val();
+          const nuevoStock = (actual?.cantidad || 0) - p.cantidad;
+          update(prodRef, { cantidad: nuevoStock });
+        });
+      });
+
+      carrito = [];
+      renderizarCarrito();
+      clienteSelect.selectedIndex = 0;
+      idVentaEditando = null;
+      Swal.fire("Venta registrada", "", "success");
+    });
+  });
+
+  // Historial
+  let historial = {};
+  onValue(ref(db, "ventas_19calle"), (snapshot) => {
+    historial = snapshot.val() || {};
+    renderizarVentas();
+  });
+
+  const filtroCliente = document.getElementById("filtroCliente");
+  const filtroFecha   = document.getElementById("filtroFecha");
+
+  function renderizarVentas() {
+    listaVentas.innerHTML = "";
+    const texto = filtroCliente.value.trim().toLowerCase();
+    const fechaFiltro = filtroFecha.value;
+
+    Object.entries(historial).forEach(([id, v]) => {
+      const nombreCliente = clienteSelect.querySelector(`option[value="${v.cliente}"]`)?.textContent ?? v.cliente;
+      const coincideCliente = nombreCliente.toLowerCase().includes(texto);
+      const coincideFecha = fechaFiltro ? v.fecha === fechaFiltro : true;
+      if (!coincideCliente || !coincideFecha) return;
+
+      const resumen = v.productos.map(p => `${p.nombre} (${p.cantidad})`).join(", ");
+      const item = document.createElement("div");
+      item.className = "mdl-list__item mdl-list__item--three-line";
+      item.innerHTML = `
+        <span class="mdl-list__item-primary-content">
+          <i class="zmdi zmdi-receipt mdl-list__item-avatar"></i>
+          <span><strong>${nombreCliente}</strong> – ${q(v.total)}</span>
+          <span class="mdl-list__item-sub-title">${v.fecha} | ${resumen}</span>
+        </span>
+        <span class="mdl-list__item-secondary-action">
+          <button class="mdl-button mdl-js-button mdl-button--icon" onclick="imprimirVenta('${id}')">
+            <i class="zmdi zmdi-print"></i>
+          </button>
+          <button class="mdl-button mdl-js-button mdl-button--icon" onclick="editarVenta('${id}')">
+            <i class="zmdi zmdi-edit"></i>
+          </button>
+          <button class="mdl-button mdl-js-button mdl-button--icon" onclick="eliminarVenta('${id}')">
+            <i class="zmdi zmdi-delete"></i>
+          </button>
+        </span>
+      `;
+      listaVentas.appendChild(item);
+    });
+  }
+  filtroCliente.addEventListener("input", renderizarVentas);
+  filtroFecha.addEventListener("change", renderizarVentas);
+
+  // Botón imprimir listado
+  document.getElementById("btn-pdf-ventas").addEventListener("click", () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("HISTORIAL DE VENTAS – SUPER PANDA", 20, 20);
+    doc.setFontSize(10);
+    doc.text("Fecha: " + new Date().toLocaleDateString(), 20, 28);
+
+    const texto = filtroCliente.value.trim().toLowerCase();
+    const fechaFiltro = filtroFecha.value;
+
+    const rows = Object.entries(historial)
+      .filter(([_, v]) => {
+        const cliente = clienteSelect.querySelector(`option[value="${v.cliente}"]`)?.textContent ?? v.cliente;
+        return (
+          cliente.toLowerCase().includes(texto) &&
+          (fechaFiltro ? v.fecha === fechaFiltro : true)
+        );
+      })
+      .map(([_, v]) => {
+        const cliente = clienteSelect.querySelector(`option[value="${v.cliente}"]`)?.textContent ?? v.cliente;
+        const resumen = v.productos.map(p => `${p.nombre} (${p.cantidad})`).join(", ");
+        return [cliente, v.fecha, resumen, q(v.total)];
+      });
+
+    doc.autoTable({
+      head: [["Cliente", "Fecha", "Productos", "Total"]],
+      body: rows,
+      startY: 35,
+      theme: "striped"
+    });
+    doc.save("ventas_filtradas_superpanda.pdf");
+  });
+
+  window.editarVenta = function (id) {
+    const venta = historial[id];
+    if (!venta) return;
+    idVentaEditando = id;
+    carrito = [];
+    renderizarCarrito();
+
+    // Revertir stock y precargar carrito
+    venta.productos.forEach(p => {
+      const productoRef = ref(db, "productos_19calle/" + p.codigo);
+      get(productoRef).then(snapshot => {
+        const actual = snapshot.val();
+        if (actual) {
+          const nuevoStock = (actual.cantidad || 0) + p.cantidad;
+          update(productoRef, { cantidad: nuevoStock });
+        }
+      });
+      carrito.push({ ...p });
+    });
+
+    clienteSelect.value = venta.cliente;
+    document.querySelector('[href="#tabNewVenta"]').click();
+    renderizarCarrito();
+
+    setTimeout(() => {
+      document.querySelectorAll('.mdl-textfield').forEach(el => el.classList.add('is-dirty'));
+      if (window.componentHandler) componentHandler.upgradeDom();
+    }, 50);
+  };
+
+  window.imprimirVenta = async function (id) {
+    const venta = historial[id];
+    if (!venta) return;
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "letter" });
+
+    const clienteData = await get(ref(db, "clientes/" + venta.cliente)).then(s => s.val() || {});
+    const clienteNombre = clienteData.nombre ? `${clienteData.nombre} ${clienteData.apellido || ""}` : venta.cliente;
+    const telefono = clienteData.telefono || "-";
+    const direccion = clienteData.direccion || "-";
+    const nit = clienteData.nit || "-";
+    const codigoVenta = venta.codigo || id.slice(-6).toUpperCase();
+    const fecha = venta.fecha;
+
+    const totalLetras = numALetras(venta.total.toFixed(2));
+
+    function imprimirMitad(yOffset, copiaTexto) {
+      doc.addImage("assets/img/logo.png", "PNG", 15, yOffset, 25, 25);
+      doc.setFontSize(14);
+      doc.text("SUPER PANDA", 43, yOffset + 10);
+      doc.setFontSize(10);
+      doc.text("NOTA DE ENTREGA", 43, yOffset + 16);
+      doc.setFontSize(9);
+      doc.text(`Código venta: ${codigoVenta}`, 150, yOffset + 12);
+      doc.text(`Fecha: ${fecha}`, 150, yOffset + 16);
+      doc.setFontSize(12);
+      doc.text(copiaTexto, 175, yOffset + 8, { align: "right" });
+
+      const rows = venta.productos.map(p => [
+        p.codigo || "-",
+        p.nombre,
+        p.cantidad,
+        q(p.precio),
+        q(p.cantidad * p.precio)
+      ]);
+
+      doc.autoTable({
+        head: [["Código", "Producto", "Cant.", "Precio Unitario", "Subtotal"]],
+        body: rows,
+        startY: yOffset + 50,
+        theme: "grid",
+        styles: { fontSize: 9 },
+        margin: { left: 15, right: 15 }
+      });
+
+      const tablaY = doc.lastAutoTable.finalY + 5;
+      doc.setFontSize(10);
+      doc.text("Total: " + q(venta.total), 140, tablaY);
+      doc.text("Total en letras:", 15, tablaY + 6);
+      doc.setFontSize(9);
+      doc.text(totalLetras, 15, tablaY + 12);
+      doc.setDrawColor(0);
+      doc.line(15, tablaY + 25, 80, tablaY + 25);
+      doc.text("Firma y sello", 25, tablaY + 30);
+    }
+
+    imprimirMitad(10, "ORIGINAL");
+    doc.setLineWidth(0.2);
+    doc.line(10, 143, 200, 143);
+    doc.text("Corte de hoja ✂", 105, 145, { align: "center" });
+    imprimirMitad(150, "COPIA");
+    doc.save(`nota_${codigoVenta}.pdf`);
+  };
+
+  // Número a letras (GT)
+  function numALetras(numStr) {
+    const UNIDADES = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
+    const DECENAS  = ["", "diez", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"];
+    const CENTENAS = ["", "ciento", "doscientos", "trescientos", "cuatrocientos", "quinientos", "seiscientos", "setecientos", "ochocientos", "novecientos"];
+    const ESPECIALES = { 10:"diez", 11:"once", 12:"doce", 13:"trece", 14:"catorce", 15:"quince", 20:"veinte" };
+
+    function convertirGrupo(n) {
+      let out = "";
+      const c = Math.floor(n / 100);
+      const d = Math.floor((n % 100) / 10);
+      const u = n % 10;
+
+      if (n === 0) return "";
+      if (n === 100) return "cien";
+
+      if (c) out += CENTENAS[c] + " ";
+      if (n % 100 >= 10 && n % 100 <= 15) return (out + ESPECIALES[n % 100]).trim();
+      if (n % 100 === 20) return (out + "veinte").trim();
+
+      if (d >= 2) {
+        out += DECENAS[d];
+        if (u) out += " y " + UNIDADES[u];
+      } else if (d === 1) {
+        out += ESPECIALES[10 + u];
+      } else if (u) {
+        out += UNIDADES[u];
+      }
+      return out.trim();
+    }
+
+    function seccion(valor, nombre) {
+      if (valor === 0) return "";
+      if (valor === 1 && nombre === "mil") return "mil ";
+      return (convertirGrupo(valor) + " " + nombre + " ").trim() + " ";
+    }
+
+    const [enteroStr, decimalStr] = String(numStr).split(".");
+    const entero = parseInt(enteroStr || "0");
+    const centavos = parseInt(decimalStr || "0");
+
+    if (entero > 999999) return "Cantidad demasiado grande";
+
+    const miles   = Math.floor(entero / 1000);
+    const cientos = entero % 1000;
+
+    let letras = "";
+    letras += seccion(miles, "mil");
+    letras += convertirGrupo(cientos);
+    letras = letras.trim();
+    if (!letras) letras = "cero";
+
+    letras = letras.charAt(0).toUpperCase() + letras.slice(1);
+    const centavoTexto = centavos ? ` con ${centavos}/100` : "";
+    return `${letras} quetzales${centavoTexto}`;
+  }
+</script>
+</body>
+</html>

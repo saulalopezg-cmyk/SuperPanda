@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generar XLS – Super Panda</title>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/normalize.css" />
+  <link rel="stylesheet" href="css/material.min.css" />
+  <link rel="stylesheet" href="css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="css/jquery.mCustomScrollbar.css" />
+  <link rel="stylesheet" href="css/main.css" />
+
+  <!-- JS de terceros que esperan globals (NO module) -->
+  <!-- jQuery primero -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <!-- Dependientes de jQuery -->
+  <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+  <!-- Otros scripts globales -->
+  <script src="js/material.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+  <!-- Barra superior -->
+  <div class="full-width navBar">
+    <div class="full-width navBar-options">
+      <i class="zmdi zmdi-more-vert btn-menu" id="btn-menu"></i>
+      <nav class="navBar-options-list">
+        <ul class="list-unstyle">
+          <li class="btn-exit" onclick="logout()">
+            <i class="zmdi zmdi-power"></i>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Navegación lateral -->
+  <section class="full-width navLateral">
+    <div class="full-width navLateral-bg btn-menu"></div>
+    <div class="full-width navLateral-body">
+      <div class="full-width navLateral-body-logo text-center tittles">
+        <i class="zmdi zmdi-close btn-menu"></i> SUPER PANDA 19 CALLE
+      </div>
+      <figure class="full-width" style="height: 77px;">
+        <div class="navLateral-body-cl">
+          <img src="assets/img/logo.png" alt="Logo" />
+        </div>
+      </figure>
+      <nav class="full-width">
+        <ul class="full-width list-unstyle menu-principal">
+          <li>
+            <a href="home_19calle.html" class="full-width">
+              <div class="navLateral-body-cl"><i class="zmdi zmdi-view-dashboard"></i></div>
+              <div class="navLateral-body-cr hide-on-tablet">Inicio</div>
+            </a>
+          </li>
+          <li>
+            <a href="inventory_19calle.html" class="full-width">
+              <div class="navLateral-body-cl"><i class="zmdi zmdi-store"></i></div>
+              <div class="navLateral-body-cr hide-on-tablet">Inventario</div>
+            </a>
+          </li>
+          <li>
+            <a href="generar_xls_19calle.html" class="full-width active">
+              <div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div>
+              <div class="navLateral-body-cr hide-on-tablet">Generar XLS</div>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Contenido principal -->
+  <section class="full-width pageContent">
+    <div class="mdl-grid">
+      <div class="mdl-cell mdl-cell--6-col mdl-cell--3-offset-desktop">
+        <div class="full-width panel mdl-shadow--2dp">
+          <div class="full-width panel-tittle bg-info text-center tittles">
+            Generar archivo XLS consolidado
+          </div>
+          <div class="full-width panel-content text-center">
+            <p>Haz clic en el botón para descargar todos los datos en un solo Excel.</p>
+            <button id="btn-generar-xls" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+              <i class="zmdi zmdi-file-text"></i> Generar XLS
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lógica (MÓDULO) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+    import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs";
+
+    // --- Firebase ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
+      authDomain: "superpanda-a89c0.firebaseapp.com",
+      projectId: "superpanda-a89c0",
+      storageBucket: "superpanda-a89c0.appspot.com",
+      messagingSenderId: "730819312861",
+      appId: "1:730819312861:web:4a60912c859691d45a6f34"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // Logout global (onclick del botón de la barra)
+    window.logout = async function () {
+      try {
+        await signOut(auth);
+        Swal.fire("Sesión cerrada", "", "success").then(() => {
+          window.location.href = "index.html";
+        });
+      } catch (e) {
+        console.error(e);
+        Swal.fire("Error", "No se pudo cerrar sesión", "error");
+      }
+    };
+
+    // Proteger ruta
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        Swal.fire("Sesión expirada", "Por favor inicia sesión nuevamente", "warning")
+          .then(() => window.location.href = "index.html");
+      } else {
+        console.log("Sesión activa para:", user.email);
+      }
+    });
+
+    // --- Helpers XLS ---
+    function aplicarBordes(hoja) {
+      const ref = hoja["!ref"];
+      if (!ref) return;
+      const rango = XLSX.utils.decode_range(ref);
+      for (let R = rango.s.r; R <= rango.e.r; ++R) {
+        for (let C = rango.s.c; C <= rango.e.c; ++C) {
+          const addr = XLSX.utils.encode_cell({ r: R, c: C });
+          const celda = hoja[addr] || (hoja[addr] = { t: "s", v: "" });
+          celda.s = {
+            border: {
+              top: { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+            }
+          };
+        }
+      }
+    }
+
+    function safe(v, def = "-") {
+      return v === undefined || v === null || v === "" ? def : v;
+    }
+
+    function esURL(str) {
+      return typeof str === "string" && /^https?:\/\//i.test(str);
+    }
+
+    // Aplana ventas con múltiples productos a filas por producto
+    function aplanarVentas(ventasObj = {}, clientesObj = {}) {
+      const filas = [];
+      Object.entries(ventasObj).forEach(([id, v]) => {
+        const fecha = safe(v.fecha, "");
+        const codVenta = safe(v.codigo, id.slice(-6).toUpperCase());
+        const clienteId = safe(v.cliente, "");
+        const cliente = clientesObj[clienteId];
+        const nombreCliente = cliente
+          ? `${safe(cliente.nombre, "")} ${safe(cliente.apellido, "")}`.trim()
+          : clienteId || "-";
+
+        const productos = Array.isArray(v.productos) ? v.productos : [];
+        productos.forEach(p => {
+          const codigoProd = safe(p.codigo, "");
+          const nombreProd = safe(p.nombre, "");
+          const cant = Number(p.cantidad || 0);
+          const precioUnit = Number(p.precio || 0);
+          const subtotal = cant * precioUnit;
+
+          filas.push([
+            codVenta,        // Factura / código
+            fecha,
+            nombreCliente,
+            codigoProd,
+            nombreProd,
+            cant,
+            precioUnit,
+            subtotal
+          ]);
+        });
+      });
+      return filas;
+    }
+
+    // --- Generar XLS ---
+    document.getElementById("btn-generar-xls").addEventListener("click", async () => {
+      try {
+        // Carga en paralelo
+        const [
+          snapProductos,
+          snapClientes,
+          snapCompras,
+          snapProveedores,
+          snapVentas,
+          snapCuentas
+        ] = await Promise.all([
+          get(ref(db, "productos_19calle")),
+          get(ref(db, "clientes")),
+          get(ref(db, "compras_19calle")),
+          get(ref(db, "proveedores")),
+          get(ref(db, "ventas_19calle")),
+          get(ref(db, "cuentasPorCobrar_19calle"))
+        ]);
+
+        const productos = snapProductos.val() || {};
+        const clientes = snapClientes.val() || {};
+        const compras = snapCompras.val() || {};
+        const proveedores = snapProveedores.val() || {};
+        const ventas = snapVentas.val() || {};
+        const cuentas = snapCuentas.val() || {};
+
+        const libro = XLSX.utils.book_new();
+
+        // --- Hoja Inventario (con URL e imagenPath) ---
+        const invDatos = [
+          ["Código", "Nombre", "Cantidad", "Precio Venta", "Proveedor", "Costo (opcional)", "Imagen URL", "Imagen Path"],
+          ...Object.values(productos).map(p => [
+            safe(p.codigo),
+            safe(p.nombre),
+            Number(p.cantidad || 0),
+            Number(p.precio || 0),
+            safe(p.proveedor),
+            p.costo !== undefined ? Number(p.costo) : "",
+            safe(p.imagen),
+            safe(p.imagenPath)
+          ])
+        ];
+        const hojaInv = XLSX.utils.aoa_to_sheet(invDatos);
+
+        // Convertir "Imagen URL" (columna 7 = índice 6) en hipervínculo si es válida
+        const refInv = XLSX.utils.decode_range(hojaInv["!ref"]);
+        for (let r = refInv.s.r + 1; r <= refInv.e.r; r++) { // desde fila 2 (índice 1) para saltar encabezado
+          const addr = XLSX.utils.encode_cell({ r, c: 6 });
+          const cell = hojaInv[addr];
+          if (cell && esURL(cell.v)) {
+            hojaInv[addr] = {
+              t: "s",
+              v: cell.v,
+              l: { Target: cell.v } // hipervínculo
+            };
+          }
+        }
+
+        aplicarBordes(hojaInv);
+        XLSX.utils.book_append_sheet(libro, hojaInv, "Inventario");
+
+        // --- Hoja Clientes ---
+        const cliDatos = [
+          ["Nombre", "Apellido", "Correo", "Teléfono", "Dirección", "Tipo, NIT"],
+          ...Object.values(clientes).map(c => [
+            safe(c.nombre),
+            safe(c.apellido),
+            safe(c.correo),
+            safe(c.telefono),
+            safe(c.direccion),
+            safe(c.tipo) + ", " + safe(c.nit)
+          ])
+        ];
+        const hojaCli = XLSX.utils.aoa_to_sheet(cliDatos);
+        aplicarBordes(hojaCli);
+        XLSX.utils.book_append_sheet(libro, hojaCli, "Clientes");
+
+        // --- Hoja Compras ---
+        const comDatos = [
+          ["Factura", "Proveedor", "Código Producto", "Fecha", "Cantidad", "Precio Unitario", "Total"],
+          ...Object.values(compras).map(c => [
+            safe(c.factura),
+            safe(c.proveedor),
+            safe(c.codigoProducto),
+            safe(c.fecha),
+            Number(c.cantidad || 0),
+            Number(c.precioUnitario || 0),
+            Number(c.total || 0)
+          ])
+        ];
+        const hojaCom = XLSX.utils.aoa_to_sheet(comDatos);
+        aplicarBordes(hojaCom);
+        XLSX.utils.book_append_sheet(libro, hojaCom, "Compras");
+
+        // --- Hoja Proveedores ---
+        const provDatos = [
+          ["Nombre", "NIT", "Contacto", "Teléfono", "Dirección", "Correo"],
+          ...Object.values(proveedores).map(p => [
+            safe(p.nombre),
+            safe(p.nit),
+            safe(p.contacto),
+            safe(p.telefono),
+            safe(p.direccion),
+            safe(p.correo)
+          ])
+        ];
+        const hojaProv = XLSX.utils.aoa_to_sheet(provDatos);
+        aplicarBordes(hojaProv);
+        XLSX.utils.book_append_sheet(libro, hojaProv, "Proveedores");
+
+        // --- Hoja Ventas (aplanada por producto) ---
+        const ventasFilas = aplanarVentas(ventas, clientes);
+        const venDatos = [
+          ["Factura", "Fecha", "Cliente", "Código Producto", "Producto", "Cantidad", "Precio Unitario", "Subtotal"],
+          ...ventasFilas
+        ];
+        const hojaVen = XLSX.utils.aoa_to_sheet(venDatos);
+        aplicarBordes(hojaVen);
+        XLSX.utils.book_append_sheet(libro, hojaVen, "Ventas");
+
+        // --- Hoja Cuentas por cobrar ---
+        const cxcDatos = [
+          ["Cliente", "Monto", "Vencimiento", "Estado", "Observaciones"],
+          ...Object.values(cuentas).map(c => [
+            safe(c.cliente),
+            Number(c.monto || 0),
+            safe(c.vencimiento),
+            safe(c.estado),
+            safe(c.observaciones)
+          ])
+        ];
+        const hojaCxc = XLSX.utils.aoa_to_sheet(cxcDatos);
+        aplicarBordes(hojaCxc);
+        XLSX.utils.book_append_sheet(libro, hojaCxc, "Cuentas por cobrar");
+
+        // Guardar archivo
+        XLSX.writeFile(libro, "reporte_super_panda.xlsx");
+      } catch (err) {
+        console.error("Error al generar el archivo:", err);
+        Swal.fire("Error", "No se pudo generar el archivo", "error");
+      }
+    });
+
+    // (Opcional) inicialización del scroll personalizado si lo usas:
+    if (window.jQuery && jQuery.fn.mCustomScrollbar) {
+      jQuery(".navLateral-body").mCustomScrollbar({ theme: "minimal" });
+    }
+  </script>
+</body>
+</html>

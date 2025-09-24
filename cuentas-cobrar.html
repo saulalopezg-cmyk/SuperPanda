@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cuentas por Cobrar – Super Panda</title>
+  <link rel="stylesheet" href="css/normalize.css" />
+  <link rel="stylesheet" href="css/sweetalert2.css" />
+  <link rel="stylesheet" href="css/material.min.css" />
+  <link rel="stylesheet" href="css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="css/jquery.mCustomScrollbar.css" />
+  <link rel="stylesheet" href="css/main.css" />
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/jquery-1.11.2.min.js"><\/script>')</script>
+  <script src="js/material.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+  <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+  <!-- NavBar -->
+  <div class="full-width navBar">
+    <div class="full-width navBar-options">
+      <i class="zmdi zmdi-more-vert btn-menu" id="btn-menu"></i>
+      <nav class="navBar-options-list">
+        <ul class="list-unstyle">
+          <li class="btn-exit" onclick="logout()">
+            <i class="zmdi zmdi-power"></i>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+<section class="full-width navLateral">
+    <div class="full-width navLateral-bg btn-menu"></div>
+    <div class="full-width navLateral-body">
+      <div class="full-width navLateral-body-logo text-center tittles">
+        <i class="zmdi zmdi-close btn-menu"></i> SUPER PANDA PLAZA NIXKAB
+      </div>
+      <figure class="full-width" style="height: 77px;">
+        <div class="navLateral-body-cl">
+<img src="assets/img/logo.png" ... />  </div>
+        <figcaption class="navLateral-body-cr hide-on-tablet">
+          <span>
+            <br />
+            <small></small>
+          </span>
+        </figcaption>
+      </figure>
+      <div class="full-width tittles navLateral-body-tittle-menu">
+        <i class="zmdi zmdi-desktop-mac"></i><span class="hide-on-tablet"> MENÚ</span>
+      </div>
+      <nav class="full-width">
+        <ul class="full-width list-unstyle menu-principal">
+          <li><a href="home.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-view-dashboard"></i></div><div class="navLateral-body-cr hide-on-tablet">Inicio</div></a></li>
+          <li><a href="inventory.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-store"></i></div><div class="navLateral-body-cr hide-on-tablet">Inventario</div></a></li>
+          <li><a href="client.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-accounts"></i></div><div class="navLateral-body-cr hide-on-tablet">Clientes</div></a></li>
+          <li><a href="sales.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-basket"></i></div><div class="navLateral-body-cr hide-on-tablet">Compras</div></a></li>
+          <li><a href="providers.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-truck"></i></div><div class="navLateral-body-cr hide-on-tablet">Proveedores</div></a></li>
+          <li><a href="ventas.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div><div class="navLateral-body-cr hide-on-tablet">Ventas</div></a></li>
+          <li><a href="cuentas-cobrar.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div><div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div></a></li>
+        <li><a href="generar_xls.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div><div class="navLateral-body-cr hide-on-tablet">Generar XLS</div></a></li>
+   
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+  <section class="full-width pageContent">
+    <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+  <div class="mdl-tabs__tab-bar">
+    <a href="#tabRegistrarCxc" class="mdl-tabs__tab is-active">Registrar cuenta</a>
+    <a href="#tabListaCxc" class="mdl-tabs__tab">Historial</a>
+    
+  </div>
+
+  <!-- Registro manual -->
+  <div class="mdl-tabs__panel is-active" id="tabRegistrarCxc">
+    <div class="mdl-grid">
+      <div class="mdl-cell mdl-cell--8-col mdl-cell--2-offset-desktop">
+        <div class="full-width panel mdl-shadow--2dp">
+          <div class="full-width panel-tittle bg-primary text-center tittles">Registrar cuenta por cobrar</div>
+          <div class="full-width panel-content">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input id="codigoVentaInput" class="mdl-textfield__input" type="text" />
+              <label class="mdl-textfield__label" for="codigoVentaInput">Código de venta (Ej. V001)</label>
+            </div>
+            <p class="text-center">
+              <button id="btn-buscarVenta" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                Buscar venta
+              </button>
+            </p>
+            <div id="datosVenta" style="display:none">
+              <p><strong>Cliente:</strong> <span id="nombreCliente"></span></p>
+              <p><strong>Fecha:</strong> <span id="fechaVenta"></span></p>
+              <p><strong>Total de la venta:</strong> Q<span id="totalVenta"></span></p>
+
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input id="saldoInput" class="mdl-textfield__input" type="number" />
+                <label class="mdl-textfield__label" for="saldoInput">Saldo a cobrar</label>
+              </div>
+
+              <p class="text-center">
+                <button id="btn-guardarCxc" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                  Guardar cuenta
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Lista de cuentas -->
+<div class="mdl-tabs__panel" id="tabListaCxc">
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--10-col mdl-cell--1-offset-desktop">
+      <div class="full-width panel mdl-shadow--2dp">
+        <div class="full-width panel-tittle bg-success text-center tittles">Historial de Cuentas</div>
+        <button id="btn-imprimirHistorial" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" style="float:right;margin-left:10px;">
+  🖨️ Imprimir historial
+</button>
+        <div class="full-width panel-content">
+          <div class="text-right">
+            <input type="text" id="filtroClienteCxc" class="mdl-textfield__input" placeholder="Buscar por cliente..." style="width:30%;margin-bottom:10px;" />
+            <select id="filtroEstadoCxc" class="mdl-textfield__input" style="margin-left:10px;">
+              <option value="">Todos</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+          <ul class="mdl-list" id="listaCuentas">
+            <!-- Cuentas cargadas aquí dinámicamente -->
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  </section>
+
+  <script type="module">
+
+let clientesCache = {};
+
+
+
+    import {
+  getAuth,
+  onAuthStateChanged
+  
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+import {
+  getDatabase, ref, get, set, push, onValue
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+import Swal from "https://cdn.jsdelivr.net/npm/sweetalert2@11/+esm";
+import "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
+    authDomain: "superpanda-a89c0.firebaseapp.com",
+    projectId: "superpanda-a89c0",
+    storageBucket: "superpanda-a89c0.firebasestorage.app",
+    messagingSenderId: "730819312861",
+    appId: "1:730819312861:web:4a60912c859691d45a6f34"
+  };
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+onAuthStateChanged(auth, (user) => {
+    get(ref(db, "clientes")).then(snap => {
+  clientesCache = snap.val() || {};
+});
+  if (!user) {
+    Swal.fire("Acceso denegado", "Debes iniciar sesión para acceder", "error").then(() => {
+      location.href = "index.html"; // o login.html si tienes uno
+    });
+  }
+});
+
+
+
+// DOM elementos
+const codInput = document.getElementById("codigoVentaInput");
+const btnBuscar = document.getElementById("btn-buscarVenta");
+const btnGuardar = document.getElementById("btn-guardarCxc");
+const datosVenta = document.getElementById("datosVenta");
+const clienteSpan = document.getElementById("nombreCliente");
+const fechaSpan = document.getElementById("fechaVenta");
+const totalSpan = document.getElementById("totalVenta");
+const saldoInput = document.getElementById("saldoInput");
+
+let ventaSeleccionada = null;
+
+btnBuscar.addEventListener("click", () => {
+  const codigo = (codInput.value || "").trim().toUpperCase();
+  if (!codigo.startsWith("V")) {
+    Swal.fire("Código inválido", "Debe iniciar con V (ej. V001)", "warning");
+    return;
+  }
+
+  get(ref(db, "ventas")).then(snap => {
+    const ventas = snap.val() || {};
+    const match = Object.entries(ventas).find(([_, v]) => v.codigo === codigo);
+    if (!match) {
+      Swal.fire("No encontrada", `No hay una venta con código ${codigo}`, "error");
+      return;
+    }
+
+    const [id, venta] = match;
+    ventaSeleccionada = { ...venta, id };
+
+    // Obtener cliente
+    get(ref(db, "clientes/" + venta.cliente)).then(cSnap => {
+      const cliente = cSnap.val() || {};
+      clienteSpan.textContent = cliente.nombre + " " + (cliente.apellido || "");
+      fechaSpan.textContent = venta.fecha;
+      totalSpan.textContent = venta.total.toFixed(2);
+      saldoInput.value = "";
+      datosVenta.style.display = "block";
+    });
+  });
+});
+
+btnGuardar.addEventListener("click", () => {
+  if (!ventaSeleccionada) return;
+
+  const saldo = parseFloat(saldoInput.value);
+  if (isNaN(saldo) || saldo <= 0 || saldo > ventaSeleccionada.total) {
+    Swal.fire("Saldo inválido", "Debe ser mayor a 0 y menor o igual al total", "warning");
+    return;
+  }
+
+  const cuenta = {
+    cliente: ventaSeleccionada.cliente,
+    venta: ventaSeleccionada.id,
+    codigoVenta: ventaSeleccionada.codigo,
+    fechaVenta: ventaSeleccionada.fecha,
+    total: ventaSeleccionada.total,
+    abonado: ventaSeleccionada.total - saldo,
+    saldo: saldo,
+    estado: saldo === 0 ? "cancelado" : "pendiente",
+    movimientos: [
+      { fecha: ventaSeleccionada.fecha, tipo: "venta", monto: ventaSeleccionada.total }
+    ]
+  };
+
+  if (cuenta.abonado > 0) {
+    cuenta.movimientos.push({
+      fecha: new Date().toISOString().split("T")[0],
+      tipo: "abono",
+      monto: cuenta.abonado
+    });
+  }
+
+  push(ref(db, "cuentasPorCobrar"), cuenta).then(() => {
+    Swal.fire("Guardado", "Cuenta por cobrar registrada", "success");
+    datosVenta.style.display = "none";
+    codInput.value = "";
+    ventaSeleccionada = null;
+  });
+});
+
+// Historial y funciones
+const listaCuentas = document.getElementById("listaCuentas");
+const filtroCli = document.getElementById("filtroClienteCxc");
+const filtroEstado = document.getElementById("filtroEstadoCxc");
+let cuentas = {};
+
+onValue(ref(db, "cuentasPorCobrar"), snap => {
+  cuentas = snap.val() || {};
+  renderCuentas();
+});
+
+function renderCuentas() {
+  listaCuentas.innerHTML = "";
+  const texto = filtroCli.value.trim().toLowerCase();
+  const estado = filtroEstado.value;
+
+  Object.entries(cuentas).forEach(([id, c]) => {
+    if (estado && c.estado !== estado) return;
+
+    get(ref(db, "clientes/" + c.cliente)).then(snap => {
+    
+      const cli = snap.val() || {};
+    c.clienteData = cli;
+      const nombre = `${cli.nombre || ""} ${cli.apellido || ""}`.trim();
+      if (!nombre.toLowerCase().includes(texto)) return;
+         c.clienteData = cli; // Guardamos el nombre del cliente en la cuenta
+      const li = document.createElement("li");
+      li.className = "mdl-list__item";
+      li.innerHTML = `
+        <span class="mdl-list__item-primary-content">
+          <strong>${nombre}</strong> – Venta ${c.codigoVenta}
+          <br>Fecha: ${c.fechaVenta} – Saldo: Q${c.saldo.toFixed(2)} (${c.estado})
+        </span>
+        <span class="mdl-list__item-secondary-action">
+          <button onclick="abonar('${id}')">💰</button>
+          <button onclick="imprimir('${id}')">🖨️</button>
+          <button onclick="historial('${c.cliente}')">📚</button>
+        </span>`;
+      listaCuentas.appendChild(li);
+    });
+  });
+}
+
+filtroCli.addEventListener("input", renderCuentas);
+filtroEstado.addEventListener("change", renderCuentas);
+
+window.abonar = function (id) {
+  const cuenta = cuentas[id];
+  Swal.fire({
+    title: "Registrar abono",
+    input: "number",
+    inputLabel: `Saldo actual: Q${cuenta.saldo.toFixed(2)}`,
+    showCancelButton: true
+  }).then(res => {
+    const monto = parseFloat(res.value);
+    if (isNaN(monto) || monto <= 0 || monto > cuenta.saldo) return;
+
+    cuenta.abonado += monto;
+    cuenta.saldo -= monto;
+    cuenta.movimientos.push({
+      fecha: new Date().toISOString().split("T")[0],
+      tipo: "abono",
+      monto
+    });
+
+    cuenta.estado = cuenta.saldo <= 0 ? "cancelado" : "pendiente";
+    set(ref(db, "cuentasPorCobrar/" + id), cuenta).then(() => {
+      Swal.fire("Abono registrado", "", "success");
+    });
+  });
+};
+
+window.imprimir = function (id) {
+  const c = cuentas[id];
+  get(ref(db, "clientes/" + c.cliente)).then(snap => {
+    const cli = snap.val() || {};
+     const doc = new window.jspdf.jsPDF();
+    doc.text("Estado de Cuenta – SuperPanda", 20, 20);
+    doc.setFontSize(10);
+    doc.text(`Cliente: ${cli.nombre || ""} ${cli.apellido || ""}`, 20, 30);
+    doc.text(`Tel: ${cli.telefono || "-"}`, 20, 36);
+    doc.text(`NIT: ${cli.nit || "-"}`, 20, 42);
+    doc.text(`Dirección: ${cli.direccion || "-"}`, 20, 48);
+    doc.text(`Venta: ${c.codigoVenta} – Fecha: ${c.fechaVenta}`, 20, 54);
+
+    const rows = c.movimientos.map(m => [m.fecha, m.tipo.toUpperCase(), "Q" + m.monto.toFixed(2)]);
+    doc.autoTable({
+      head: [["Fecha", "Tipo", "Monto"]],
+      body: rows,
+      startY: 60
+    });
+
+    doc.text(`Total: Q${c.total.toFixed(2)}`, 20, doc.lastAutoTable.finalY + 10);
+    doc.text(`Abonado: Q${c.abonado.toFixed(2)}`, 20, doc.lastAutoTable.finalY + 16);
+    doc.text(`Saldo: Q${c.saldo.toFixed(2)}`, 20, doc.lastAutoTable.finalY + 22);
+
+    doc.save(`estado_${c.codigoVenta}.pdf`);
+  });
+};
+
+window.historial = function (clienteID) {
+  const resumen = Object.values(cuentas)
+    .filter(c => c.cliente === clienteID)
+    .map(c => 
+      `• Venta ${c.codigoVenta} – ${c.fechaVenta} – Total: Q${c.total.toFixed(2)} – Abonado: Q${c.abonado.toFixed(2)} – Saldo: Q${c.saldo.toFixed(2)} – ${c.estado}`
+    ).join("\n");
+
+  Swal.fire({
+    title: "Historial de cuentas del cliente",
+    icon: "info",
+    html: `<pre style="text-align:left;font-size:13px">${resumen}</pre>`
+  });
+};
+document.getElementById("btn-imprimirHistorial").addEventListener("click", () => {
+  const texto = filtroCli.value.trim().toLowerCase();
+  const estado = filtroEstado.value;
+
+  const cuentasFiltradas = Object.entries(cuentas).filter(([_, c]) => {
+    if (estado && c.estado !== estado) return false;
+    const cli = clientesCache[c.cliente] || {};
+    const nombre = `${cli.nombre || ""} ${cli.apellido || ""}`.toLowerCase();
+    return nombre.includes(texto);
+  });
+
+  if (cuentasFiltradas.length === 0) {
+    Swal.fire("Sin resultados", "No hay cuentas para imprimir con el filtro actual", "info");
+    return;
+  }
+
+  const doc = new window.jspdf.jsPDF();
+  doc.text("Resumen de Cuentas por Cobrar – SuperPanda", 20, 20);
+  doc.setFontSize(10);
+
+  const rows = cuentasFiltradas.map(([_, c]) => {
+    const cli = clientesCache[c.cliente] || {};
+    return [
+      c.codigoVenta,
+      `${cli.nombre || ""} ${cli.apellido || ""}`,
+      c.fechaVenta,
+      "Q" + c.total.toFixed(2),
+      "Q" + c.abonado.toFixed(2),
+      "Q" + c.saldo.toFixed(2),
+      c.estado.toUpperCase()
+    ];
+  });
+
+  doc.autoTable({
+    head: [["Venta", "Cliente", "Fecha", "Total", "Abonado", "Saldo", "Estado"]],
+    body: rows,
+    startY: 30
+  });
+
+  doc.save("cuentas_cobrar.pdf");
+});
+  </script>
+</body>
+</html>

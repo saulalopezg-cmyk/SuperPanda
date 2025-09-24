@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clientes – Super Panda</title>
+
+  <link rel="stylesheet" href="css/normalize.css" />
+  <link rel="stylesheet" href="css/sweetalert2.css" />
+  <link rel="stylesheet" href="css/material.min.css" />
+  <link rel="stylesheet" href="css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="css/jquery.mCustomScrollbar.css" />
+  <link rel="stylesheet" href="css/main.css" />
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/jquery-1.11.2.min.js"><\/script>')</script>
+  <script src="js/material.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+  
+</head>
+
+
+<body>
+
+	<!-- Navbar -->
+  <div class="full-width navBar">
+    <div class="full-width navBar-options">
+      <i class="zmdi zmdi-more-vert btn-menu" id="btn-menu"></i>
+      <div class="mdl-tooltip" for="btn-menu">Menú</div>
+      <nav class="navBar-options-list">
+        <ul class="list-unstyle">
+          <li class="btn-exit" onclick="logout()">
+            <i class="zmdi zmdi-power"></i>
+            <div class="mdl-tooltip" for="btn-exit">Cerrar sesión</div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Barra lateral -->
+  <section class="full-width navLateral">
+    <div class="full-width navLateral-bg btn-menu"></div>
+    <div class="full-width navLateral-body">
+      <div class="full-width navLateral-body-logo text-center tittles">
+        <i class="zmdi zmdi-close btn-menu"></i> SUPER PANDA PLAZA NIXKAB
+      </div>
+      <figure class="full-width" style="height: 77px;">
+        <div class="navLateral-body-cl">
+          <img src="assets/img/logo.png" alt="Avatar" class="img-responsive" />
+        </div>
+        <figcaption class="navLateral-body-cr hide-on-tablet">
+          <span>
+            <br />
+            <small></small>
+          </span>
+        </figcaption>
+      </figure>
+      <div class="full-width tittles navLateral-body-tittle-menu">
+        <i class="zmdi zmdi-desktop-mac"></i><span class="hide-on-tablet"> MENÚ</span>
+      </div>
+      <nav class="full-width">
+        <ul class="full-width list-unstyle menu-principal">
+          <li><a href="home.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-view-dashboard"></i></div><div class="navLateral-body-cr hide-on-tablet">Inicio</div></a></li>
+          <li><a href="inventory.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-store"></i></div><div class="navLateral-body-cr hide-on-tablet">Inventario</div></a></li>
+          <li><a href="client.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-accounts"></i></div><div class="navLateral-body-cr hide-on-tablet">Clientes</div></a></li>
+          <li><a href="sales.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-basket"></i></div><div class="navLateral-body-cr hide-on-tablet">Compras</div></a></li>
+          <li><a href="providers.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-truck"></i></div><div class="navLateral-body-cr hide-on-tablet">Proveedores</div></a></li>
+          <li><a href="ventas.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div><div class="navLateral-body-cr hide-on-tablet">Ventas</div></a></li>
+          <li><a href="cuentas-cobrar.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div><div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div></a></li>
+        <li><a href="generar_xls.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div><div class="navLateral-body-cr hide-on-tablet">Generar XLS</div></a></li>
+  
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+    <!-- Menú principal -->
+    <div class="full-width tittles navLateral-body-tittle-menu">
+      <i class="zmdi zmdi-view-dashboard"></i> <span class="hide-on-tablet">&nbsp; MENÚ</span>
+    </div>
+
+    <nav class="full-width">
+      <ul class="full-width list-unstyle menu-principal">
+        <li class="full-width"><a href="home.html" class="full-width">
+          <div class="navLateral-body-cl"><i class="zmdi zmdi-home"></i></div>
+          <div class="navLateral-body-cr hide-on-tablet">Inicio</div>
+        </a></li>
+
+        <li class="full-width"><a href="inventario.html" class="full-width">
+          <div class="navLateral-body-cl"><i class="zmdi zmdi-store"></i></div>
+          <div class="navLateral-body-cr hide-on-tablet">Inventario</div>
+        </a></li>
+
+        <li class="full-width"><a href="cliente.html" class="full-width">
+          <div class="navLateral-body-cl"><i class="zmdi zmdi-accounts"></i></div>
+          <div class="navLateral-body-cr hide-on-tablet">Clientes</div>
+        </a></li>
+
+        <li class="full-width"><a href="compras.html" class="full-width">
+          <div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-basket"></i></div>
+          <div class="navLateral-body-cr hide-on-tablet">Compras</div>
+        </a></li>
+
+        <li class="full-width"><a href="proveedores.html" class="full-width">
+          <div class="navLateral-body-cl"><i class="zmdi zmdi-truck"></i></div>
+          <div class="navLateral-body-cr hide-on-tablet">Proveedores</div>
+        </a></li>
+
+        <li class="full-width"><a href="ventas.html" class="full-width">
+          <div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div>
+          <div class="navLateral-body-cr hide-on-tablet">Ventas</div>
+        </a></li>
+
+        <li class="full-width"><a href="cuentas-cobrar.html" class="full-width">
+          <div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div>
+          <div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div>
+        </a></li>
+
+        <li class="full-width"><a href="envio.html" class="full-width">
+          <div class="navLateral-body-cl"><i class="zmdi zmdi-truck-star"></i></div>
+          <div class="navLateral-body-cr hide-on-tablet">Envío</div>
+        </a></li>
+      </ul>
+    </nav>
+  </div>
+</section>
+
+  <section class="full-width pageContent">
+    <section class="full-width header-well">
+      <div class="full-width header-well-icon">
+        <i class="zmdi zmdi-accounts"></i>
+      </div>
+      <div class="full-width header-well-text">
+        <p class="text-condensedLight">Gestión de Clientes</p>
+      </div>
+    </section>
+
+    <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+      <div class="mdl-tabs__tab-bar">
+        <a href="#tabNewClient" class="mdl-tabs__tab is-active">Nuevo Cliente</a>
+        <a href="#tabListClient" class="mdl-tabs__tab">Listado</a>
+      </div>
+
+      <div class="mdl-tabs__panel is-active" id="tabNewClient">
+        <div class="mdl-grid">
+          <div class="mdl-cell mdl-cell--6-col mdl-cell--3-offset-desktop">
+            <div class="full-width panel mdl-shadow--2dp">
+              <div class="full-width panel-tittle bg-primary text-center tittles">Agregar Cliente</div>
+              <div class="full-width panel-content">
+                <form id="form-client">
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="NameClient" />
+                    <label class="mdl-textfield__label" for="NameClient">Nombre</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="LastNameClient" />
+                    <label class="mdl-textfield__label" for="LastNameClient">Apellido</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="DPIClient" />
+                    <label class="mdl-textfield__label" for="DPIClient">DPI</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="NITClient" />
+                    <label class="mdl-textfield__label" for="NITClient">NIT</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="addressClient" />
+                    <label class="mdl-textfield__label" for="addressClient">Dirección</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="phoneClient" />
+                    <label class="mdl-textfield__label" for="phoneClient">Teléfono</label>
+                  </div>
+                  <p class="text-center">
+                    <button id="btn-addClient" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
+                      Agregar Cliente
+                    </button>
+                  </p>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+	
+	        <div class="mdl-tabs__panel" id="tabListClient">
+        <div class="mdl-grid">
+          <div class="mdl-cell mdl-cell--10-col mdl-cell--1-offset-desktop">
+            <div class="full-width panel mdl-shadow--2dp">
+              <div class="full-width panel-tittle bg-success text-center tittles">Listado de Clientes</div>
+              <div class="full-width panel-content">
+				<div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
+  <label class="mdl-button mdl-js-button mdl-button--icon" for="searchClient">
+    <i class="zmdi zmdi-search"></i>
+  </label>
+  <div class="mdl-textfield__expandable-holder">
+    <input class="mdl-textfield__input" type="text" id="searchClient" />
+    <label class="mdl-textfield__label" for="searchClient">Buscar cliente...</label>
+  </div>
+</div>
+
+  	
+
+
+                <div class="mdl-list" id="lista-clientes">
+                  <!-- Los clientes se insertan dinámicamente aquí -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+	  <p class="text-center">
+  <button id="btn-pdf-clientes" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+    <i class="zmdi zmdi-print"></i> Imprimir listado de clientes
+  </button>
+</p>
+    </div>
+	
+  </section>
+  
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      set,
+      get,
+      onValue
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    import { push } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    function registrarAccion(accion, modulo, detalles = {}) {
+    const user = auth.currentUser;
+    if (!user) return;
+    const registro = {
+    fecha: new Date().toISOString(),
+    uid: user.uid,
+    correo: user.email,
+    accion,
+    modulo,
+      detalles
+  };
+  push(ref(db, "registros"), registro);
+}
+      const firebaseConfig = {
+    apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
+    authDomain: "superpanda-a89c0.firebaseapp.com",
+    projectId: "superpanda-a89c0",
+    storageBucket: "superpanda-a89c0.firebasestorage.app",
+    messagingSenderId: "730819312861",
+    appId: "1:730819312861:web:4a60912c859691d45a6f34"
+  };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // Protección por sesión
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        Swal.fire("Sesión cerrada", "Debes iniciar sesión para acceder", "warning")
+          .then(() => window.location.href = "index.html");
+      }
+    });
+	let clienteEditando = null;
+    // Agregar nuevo cliente
+   document.getElementById("btn-addClient").addEventListener("click", (e) => {
+  e.preventDefault();
+
+  const nombre = document.getElementById("NameClient").value.trim();
+  const apellido = document.getElementById("LastNameClient").value.trim();
+  const dpi = document.getElementById("DPIClient").value.trim();
+  const nit = document.getElementById("NITClient").value.trim();
+  const direccion = document.getElementById("addressClient").value.trim();
+  const telefono = document.getElementById("phoneClient").value.trim();
+
+  if (!nombre || !apellido) {
+    Swal.fire("Campos requeridos", "Nombre y apellido son obligatorios", "info");
+    return;
+  }
+
+  const cliente = { nombre, apellido, dpi, nit, direccion, telefono };
+
+  const codigo = clienteEditando || null;
+
+  if (codigo) {
+  // Editar existente
+  set(ref(db, `clientes/${codigo}`), cliente).then(() => {
+    registrarAccion("editó un cliente", "clientes", { codigo, ...cliente });
+    Swal.fire("Cliente actualizado", "", "success");
+    document.getElementById("form-client").reset();
+    clienteEditando = null;
+  });
+} else {
+  // Agregar nuevo
+  const clientesRef = ref(db, "clientes");
+  get(clientesRef).then((snapshot) => {
+    const data = snapshot.val() || {};
+    const total = Object.keys(data).length + 1;
+    const nuevoCodigo = `c${total.toString().padStart(2, "0")}`;
+    return set(ref(db, `clientes/${nuevoCodigo}`), cliente).then(() => {
+      registrarAccion("registró un cliente", "clientes", { codigo: nuevoCodigo, ...cliente });
+    });
+  }).then(() => {
+    Swal.fire("¡Guardado!", "Cliente registrado correctamente", "success");
+    document.getElementById("form-client").reset();
+  });
+}
+});
+
+    // Mostrar lista de clientes
+    const contenedor = document.getElementById("lista-clientes");
+
+    onValue(ref(db, "clientes"), (snapshot) => {
+		const clientesMap = new Map();
+
+onValue(ref(db, "clientes"), (snapshot) => {
+  clientesMap.clear();
+  const clientes = snapshot.val();
+  if (!clientes) return;
+
+  Object.entries(clientes).forEach(([codigo, cliente]) => {
+    clientesMap.set(codigo, cliente);
+  });
+
+  renderizarClientes();
+});
+
+// Filtro en tiempo real
+document.getElementById("searchClient").addEventListener("input", renderizarClientes);
+
+function renderizarClientes() {
+  const contenedor = document.getElementById("lista-clientes");
+  const filtro = document.getElementById("searchClient").value.trim().toLowerCase();
+  contenedor.innerHTML = "";
+
+  for (const [codigo, cliente] of clientesMap.entries()) {
+    const nombreCompleto = `${cliente.nombre} ${cliente.apellido}`.toLowerCase();
+    if (
+      codigo.toLowerCase().includes(filtro) ||
+      nombreCompleto.includes(filtro) ||
+      (cliente.dpi && cliente.dpi.toLowerCase().includes(filtro))
+    ) {
+      const item = document.createElement("div");
+      item.className = "mdl-list__item mdl-list__item--two-line";
+      item.innerHTML = `
+  <span class="mdl-list__item-primary-content">
+    <i class="zmdi zmdi-account mdl-list__item-avatar"></i>
+    <span>${codigo.toUpperCase()}: ${cliente.nombre} ${cliente.apellido}</span>
+    <span class="mdl-list__item-sub-title">DPI: ${cliente.dpi || "N/A"}</span>
+  </span>
+  <span class="mdl-list__item-secondary-action">
+    <button class="mdl-button mdl-js-button mdl-button--icon edit-cliente" data-id="${codigo}">
+      <i class="zmdi zmdi-edit"></i>
+    </button>
+    <button class="mdl-button mdl-js-button mdl-button--icon delete-cliente" data-id="${codigo}">
+      <i class="zmdi zmdi-delete"></i>
+    </button>
+  </span>
+`;
+      contenedor.appendChild(item);
+	 item.querySelector(".edit-cliente").addEventListener("click", () => {
+  const c = clientesMap.get(codigo);
+  clienteEditando = codigo;
+
+  document.getElementById("NameClient").value = c.nombre;
+  document.getElementById("LastNameClient").value = c.apellido;
+  document.getElementById("DPIClient").value = c.dpi || "";
+  document.getElementById("NITClient").value = c.nit || "";
+  document.getElementById("addressClient").value = c.direccion || "";
+  document.getElementById("phoneClient").value = c.telefono || "";
+  document.querySelector('[href="#tabNewClient"]').click();
+
+  setTimeout(() => {
+    document.querySelectorAll('.mdl-textfield').forEach(el => el.classList.add('is-dirty'));
+  }, 50);
+});
+
+item.querySelector(".delete-cliente").addEventListener("click", () => {
+  Swal.fire({
+    title: "¿Eliminar cliente?",
+    text: "Esta acción no se puede deshacer",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Sí, eliminar"
+  }).then(result => {
+    if (result.isConfirmed) {
+set(ref(db, "clientes/" + codigo), null).then(() => {
+  registrarAccion("eliminó un cliente", "clientes", { codigo, ...cliente });
+  Swal.fire("Cliente eliminado", "", "success");
+});
+
+    }
+  });
+});
+    }
+  }
+}
+    });
+document.getElementById("btn-pdf-clientes").addEventListener("click", () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(16);
+  doc.text("LISTADO DE CLIENTES – SUPER PANDA", 20, 20);
+  doc.setFontSize(10);
+  doc.text("Fecha: " + new Date().toLocaleDateString(), 20, 28);
+
+  get(ref(db, "clientes")).then((snapshot) => {
+    const data = snapshot.val();
+    if (!data) {
+      Swal.fire("Nada para imprimir", "No hay clientes registrados", "info");
+      return;
+    }
+
+    const rows = Object.entries(data).map(([codigo, cliente]) => [
+      codigo,
+      cliente.nombre + " " + cliente.apellido,
+      cliente.dpi || "-",
+      cliente.nit || "-",
+      cliente.telefono || "-",
+      cliente.direccion || "-"
+    ]);
+
+    doc.autoTable({
+      head: [["Código", "Nombre", "DPI", "NIT", "Teléfono", "Dirección"]],
+      body: rows,
+      startY: 35,
+      theme: "striped"
+    });
+
+    doc.save("clientes_superpanda.pdf");
+  });
+});
+
+  </script>
+  
+</body>
+</html>

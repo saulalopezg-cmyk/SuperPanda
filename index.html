@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SuperPanda – Login</title>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/normalize.css" />
+  <link rel="stylesheet" href="css/sweetalert2.css" />
+  <link rel="stylesheet" href="css/material.min.css" />
+  <link rel="stylesheet" href="css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="css/jquery.mCustomScrollbar.css" />
+  <link rel="stylesheet" href="css/main.css" />
+
+  <!-- Scripts -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/jquery-1.11.2.min.js"><\/script>')</script>
+  <script src="js/material.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+  <script src="js/main.js"></script>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      set,
+      get
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+      const firebaseConfig = {
+    apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
+    authDomain: "superpanda-a89c0.firebaseapp.com",
+    projectId: "superpanda-a89c0",
+    storageBucket: "superpanda-a89c0.firebasestorage.app",
+    messagingSenderId: "730819312861",
+    appId: "1:730819312861:web:4a60912c859691d45a6f34"
+  };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // Iniciar sesión
+    document.getElementById("SingIn").addEventListener("click", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("userName").value.trim();
+      const password = document.getElementById("pass").value.trim();
+
+      if (email && password) {
+        signInWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            return get(ref(database, 'usuarios/' + user.uid));
+          })
+          .then((snapshot) => {
+            const data = snapshot.val();
+            if (data && data.rol === "admin") {
+              window.location.href = "options.html";
+            } else {
+              window.location.href = "options.html";
+            }
+          })
+          .catch((error) => {
+            console.error("Error en login:", error.code);
+            let msg = "Error de ingreso";
+            if (error.code === "auth/user-not-found" || error.code === "auth/invalid-credential") {
+              msg = "Correo o contraseña incorrectos.";
+            } else if (error.code === "auth/too-many-requests") {
+              msg = "Demasiados intentos. Intenta más tarde.";
+            }
+            Swal.fire("Oops", msg, "error");
+          });
+      } else {Swal.fire("Campos incompletos", "Ingresa usuario y contraseña", "warning");
+      }
+    });
+
+    // Registrar nuevo usuario
+    window.registrar = function () {
+      const email = document.getElementById("userName").value.trim();
+      const password = document.getElementById("pass").value.trim();
+
+      if (email && password) {
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => { 
+            const user = userCredential.user;
+            return set(ref(database, 'usuarios/' + user.uid), {
+              email: user.email,
+              rol: "cliente"
+            });
+          })
+          .then(() => {
+            Swal.fire("¡Registro exitoso!", "Tu cuenta ha sido creada", "success");
+          })
+          .catch((error) => {
+            console.error("Error en el registro:", error.code);
+            let msg = "No se pudo registrar el usuario.";
+            if (error.code === "auth/email-already-in-use") {
+              msg = "Este correo ya está registrado.";
+            } else if (error.code === "auth/weak-password") {
+              msg = "La contraseña debe tener al menos 6 caracteres.";
+            }
+            Swal.fire("Error de registro", msg, "error");
+          });
+      } else {
+        Swal.fire("Campos vacíos", "Completa ambos campos", "info");
+      }
+    };
+  </script>
+</head>
+
+<body class="cover">
+  <div class="container-login">
+    <p class="text-center" style="font-size: 80px;">
+      <i class="zmdi zmdi-account-circle"></i>
+    </p>
+    <p class="text-center text-condensedLight">Ingrese a su Cuenta</p>
+    <form>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="email" id="userName" />
+        <label class="mdl-textfield__label" for="userName">Correo electrónico</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="password" id="pass" />
+        <label class="mdl-textfield__label" for="pass">Contraseña</label>
+      </div>
+        <button id="SingIn" type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" style="color: #e72c2c;">
+          Ingresar <i class="zmdi zmdi-mail-send"></i>
+        </button>
+      
+
+      </div>
+    </form>
+  </div>
+</body>
+</html>

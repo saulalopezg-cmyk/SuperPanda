@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ventas – Super Panda</title>
+
   <!-- Estilos base -->
   <link rel="stylesheet" href="css/normalize.css" />
   <link rel="stylesheet" href="css/sweetalert2.css" />
@@ -11,13 +12,16 @@
   <link rel="stylesheet" href="css/material-design-iconic-font.min.css" />
   <link rel="stylesheet" href="css/jquery.mCustomScrollbar.css" />
   <link rel="stylesheet" href="css/main.css" />
-  <!-- Scripts base -->
+
+  <!-- Scripts base (no-módulo) -->
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
   <script>window.jQuery || document.write('<script src="js/jquery-1.11.2.min.js"><\/script>')</script>
   <script src="js/material.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
   <script src="js/main.js"></script>
+
+  <!-- jsPDF + AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 </head>
@@ -49,6 +53,8 @@
         <li><a href="ventas_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div><div class="navLateral-body-cr hide-on-tablet">Ventas</div></a></li>
         <li><a href="cuentas-cobrar_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div><div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div></a></li>
         <li><a href="generar_xls_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div><div class="navLateral-body-cr hide-on-tablet">Generar XLS</div></a></li>
+               <li><a href="envio_19calle.html" class="full-width active"><div class="navLateral-body-cl"><i class="zmdi zmdi-local-shipping"></i></div><div class="navLateral-body-cr hide-on-tablet">Guía / Nota de envío</div></a></li>
+
       </ul>
     </nav>
   </div>
@@ -83,6 +89,7 @@
             <div class="full-width panel-tittle bg-primary text-center tittles">Registrar nueva venta</div>
             <div class="full-width panel-content">
               <form id="form-venta">
+                <!-- Cliente -->
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                   <select id="ventaCliente" class="mdl-textfield__input">
                     <option value="">Selecciona un cliente</option>
@@ -90,6 +97,13 @@
                   <label class="mdl-textfield__label" for="ventaCliente"></label>
                 </div>
 
+                <!-- Vendedor (debajo de cliente) -->
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                  <input type="text" id="ventaVendedor" class="mdl-textfield__input" />
+                  <label class="mdl-textfield__label" for="ventaVendedor">Vendedor</label>
+                </div>
+
+                <!-- Producto -->
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                   <select id="ventaProducto" class="mdl-textfield__input">
                     <option value="">Selecciona un producto</option>
@@ -97,32 +111,40 @@
                   <label class="mdl-textfield__label" for="ventaProducto"></label>
                 </div>
 
+                <!-- Cantidad -->
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                  <input type="number" id="ventaCantidad" class="mdl-textfield__input" />
+                  <input type="number" id="ventaCantidad" class="mdl-textfield__input" min="1" />
                   <label class="mdl-textfield__label" for="ventaCantidad">Cantidad</label>
                 </div>
 
-                <!-- Precio costo (solo lectura) -->
+                <!-- Precio de venta (auto o manual si Polo) -->
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                  <input type="number" id="ventaCosto" step="0.01" class="mdl-textfield__input" disabled />
-                  <label class="mdl-textfield__label" for="ventaCosto">Precio costo (Q)</label>
+                  <input type="number" id="ventaPrecio" step="0.01" class="mdl-textfield__input" disabled />
+                  <label class="mdl-textfield__label" for="ventaPrecio">Precio de venta (Q)</label>
                 </div>
 
-                <!-- Checkboxes Descuentos -->
+                <!-- Modalidades -->
                 <div class="full-width" style="margin:6px 0 14px;">
-                  <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="descMayorista" style="margin-right:16px;">
-                    <input type="checkbox" id="descMayorista" class="mdl-checkbox__input">
-                    <span class="mdl-checkbox__label">Desc. Mayorista (5%)</span>
+                  <span style="display:block; margin-bottom:6px;">Modalidad:</span>
+
+                  <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="modoMayorista" style="margin-right:18px;">
+                    <input type="radio" id="modoMayorista" class="mdl-radio__button" name="modoPrecio" value="mayorista" checked>
+                    <span class="mdl-radio__label">Mayorista / Caja</span>
                   </label>
 
-                  <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="descDocena" style="margin-right:16px;">
-                    <input type="checkbox" id="descDocena" class="mdl-checkbox__input">
-                    <span class="mdl-checkbox__label">Desc. Docena (3%)</span>
+                  <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="modoDocenas" style="margin-right:18px;">
+                    <input type="radio" id="modoDocenas" class="mdl-radio__button" name="modoPrecio" value="docenas">
+                    <span class="mdl-radio__label">Docenas</span>
                   </label>
 
-                  <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="descPolo">
-                    <input type="checkbox" id="descPolo" class="mdl-checkbox__input">
-                    <span class="mdl-checkbox__label">Desc. Polo (10%)</span>
+                  <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="modoUnitarios" style="margin-right:18px;">
+                    <input type="radio" id="modoUnitarios" class="mdl-radio__button" name="modoPrecio" value="unitarios">
+                    <span class="mdl-radio__label">Unitarios</span>
+                  </label>
+
+                  <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="modoPolo">
+                    <input type="radio" id="modoPolo" class="mdl-radio__button" name="modoPrecio" value="polo">
+                    <span class="mdl-radio__label">Polo (precio manual)</span>
                   </label>
                 </div>
 
@@ -139,6 +161,7 @@
                   <thead>
                     <tr>
                       <th>Producto</th>
+                      <th>Modo</th>
                       <th>Cantidad</th>
                       <th>Precio unitario</th>
                       <th>Subtotal</th>
@@ -148,7 +171,7 @@
                   <tbody></tbody>
                   <tfoot>
                     <tr>
-                      <td colspan="3"><strong>Total</strong></td>
+                      <td colspan="4"><strong>Total</strong></td>
                       <td id="ventaTotal">Q0.00</td>
                       <td></td>
                     </tr>
@@ -190,11 +213,26 @@
   </div> <!-- Fin tabs -->
 </section>
 
+<!-- ========================= APP ========================= -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-  import { getDatabase, ref, set, get, push, update, onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+  import { getDatabase, ref, set, get, push, update, onValue, remove } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
 
+  // ---------- CONFIG ----------
+  const firebaseConfig = {
+    apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
+    authDomain: "superpanda-a89c0.firebaseapp.com",
+    projectId: "superpanda-a89c0",
+    storageBucket: "superpanda-a89c0.firebasestorage.app",
+    messagingSenderId: "730819312861",
+    appId: "1:730819312861:web:4a60912c859691d45a6f34"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  // ---------- AUDITORÍA ----------
   function registrarAccion(accion, modulo, detalles = {}) {
     const user = auth.currentUser;
     if (!user) return;
@@ -209,18 +247,7 @@
     push(ref(db, "registros"), registro);
   }
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
-    authDomain: "superpanda-a89c0.firebaseapp.com",
-    projectId: "superpanda-a89c0",
-    storageBucket: "superpanda-a89c0.firebasestorage.app",
-    messagingSenderId: "730819312861",
-    appId: "1:730819312861:web:4a60912c859691d45a6f34"
-  };
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
-
+  // ---------- SESIÓN ----------
   onAuthStateChanged(auth, (user) => {
     if (!user) {
       Swal.fire("Sesión cerrada", "Debes iniciar sesión para acceder", "info")
@@ -228,25 +255,26 @@
     }
   });
 
-  // UI
+  // ---------- UI ----------
   const clienteSelect  = document.getElementById("ventaCliente");
+  const vendedorInput  = document.getElementById("ventaVendedor");
   const productoSelect = document.getElementById("ventaProducto");
   const cantidadInput  = document.getElementById("ventaCantidad");
-  const tabla          = document.querySelector("#tablaCarrito tbody");
+  const precioInput    = document.getElementById("ventaPrecio");
+  const tablaBody      = document.querySelector("#tablaCarrito tbody");
   const totalDisplay   = document.getElementById("ventaTotal");
   const listaVentas    = document.getElementById("lista-ventas");
+  const filtroCliente  = document.getElementById("filtroCliente");
+  const filtroFecha    = document.getElementById("filtroFecha");
+  const radiosModo     = Array.from(document.querySelectorAll('input[name="modoPrecio"]'));
 
-  // Costo y descuentos
-  const costoInput  = document.getElementById("ventaCosto");
-  const cbMayorista = document.getElementById("descMayorista");
-  const cbDocena    = document.getElementById("descDocena");
-  const cbPolo      = document.getElementById("descPolo");
-
+  // Estado
   let carrito = [];
   let idVentaEditando = null;
   let productosCache = {};
+  let historial = {};
 
-  // Parse robusto
+  // ---------- HELPERS ----------
   function leerNumero(v) {
     if (v === undefined || v === null) return NaN;
     if (typeof v === "number") return v;
@@ -257,8 +285,9 @@
     }
     return NaN;
   }
+  function q(n) { return "Q" + Number(n || 0).toFixed(2); }
 
-  // Obtener costo desde varias claves
+  // Obtener costo desde varias posibles claves
   function obtenerCosto(prod) {
     const claves = [
       "costo","precioCosto","costo_unitario","precioCostoUnitario",
@@ -268,26 +297,43 @@
       const n = leerNumero(prod?.[k]);
       if (!isNaN(n)) return n;
     }
-    // fallback opcional: si no hay costo, intenta con precio
     const fb = leerNumero(prod?.precio);
     return isNaN(fb) ? NaN : fb;
   }
 
-  function q(n) { return "Q" + Number(n || 0).toFixed(2); }
+  function modoSeleccionado() {
+    const r = radiosModo.find(r => r.checked);
+    return r ? r.value : "unitarios";
+  }
 
-  // Cargar clientes y productos
+  // Cálculo de precio según modo (basado en costo)
+  function calcularPrecioVenta(prod, modo) {
+    const costo = obtenerCosto(prod);
+    const c = isNaN(costo) ? 0 : Number(costo);
+    switch (modo) {
+      case "mayorista": return +(c * 1.25).toFixed(2); // +25%
+      case "docenas":   return +(c * 1.45).toFixed(2); // +45%
+      case "unitarios": return +(c * 2.25).toFixed(2); // +125%
+      case "polo":
+      default:          return +c.toFixed(2);          // manual (base = costo)
+    }
+  }
+
+  // ---------- CARGA INICIAL ----------
   window.addEventListener("DOMContentLoaded", () => {
+    // Clientes (compartidos)
     get(ref(db, "clientes")).then((snapshot) => {
       const data = snapshot.val();
       if (!data) return;
       Object.entries(data).forEach(([codigo, cliente]) => {
         const option = document.createElement("option");
         option.value = codigo;
-        option.textContent = `${cliente.nombre} ${cliente.apellido}`;
+        option.textContent = `${cliente.nombre} ${cliente.apellido ?? ""}`.trim();
         clienteSelect.appendChild(option);
       });
     });
 
+    // Productos (19 calle)
     get(ref(db, "productos_19calle")).then((snapshot) => {
       const data = snapshot.val();
       if (!data) return;
@@ -295,109 +341,72 @@
         productosCache[codigo] = prod;
         const option = document.createElement("option");
         option.value = codigo;
-        option.textContent = `${prod.codigo} – ${prod.nombre}`;
+        option.textContent = `${prod.codigo ?? codigo} – ${prod.nombre}`;
         productoSelect.appendChild(option);
       });
 
-      // Mostrar SIEMPRE el costo (incluido 0.00) y mantener input bloqueado
+      // Al cambiar de producto: precio según modo
       productoSelect.addEventListener("change", () => {
         const codigo = productoSelect.value;
         const prod = productosCache[codigo];
-        const costo = obtenerCosto(prod);
+        const modo = modoSeleccionado();
+        const precioCalc = calcularPrecioVenta(prod, modo);
+        const tf = precioInput.closest(".mdl-textfield");
+        precioInput.value = precioCalc.toFixed(2);
 
-        const tfCosto = costoInput.closest(".mdl-textfield");
-        if (!isNaN(costo)) {
-          costoInput.value = Number(costo).toFixed(2);   // muestra 0.00 si es 0
-          tfCosto && tfCosto.classList.add("is-dirty");
+        // Solo en Polo se habilita edición manual
+        const esPolo = (modo === "polo");
+        precioInput.disabled = !esPolo;
+
+        tf && tf.classList.add("is-dirty");
+        if (window.componentHandler) componentHandler.upgradeDom();
+      });
+    });
+
+    // Cambiar modo: recalcula o habilita manual
+    radiosModo.forEach(r => {
+      r.addEventListener("change", () => {
+        const codigo = productoSelect.value;
+        const prod = productosCache[codigo];
+        const modo = modoSeleccionado();
+        const tf = precioInput.closest(".mdl-textfield");
+
+        if (modo !== "polo") {
+          const precioCalc = calcularPrecioVenta(prod, modo);
+          precioInput.value = precioCalc.toFixed(2);
+          precioInput.disabled = true;
         } else {
-          // si no hay campo de costo en DB, muestra 0.00 para no dejarlo vacío
-          costoInput.value = "0.00";
-          tfCosto && tfCosto.classList.add("is-dirty");
+          precioInput.disabled = false;
+          if (!precioInput.value) {
+            const costo = obtenerCosto(prod);
+            precioInput.value = isNaN(costo) ? "0.00" : Number(costo).toFixed(2);
+          }
         }
-        costoInput.setAttribute("disabled", "disabled");
 
-        // limpiar checks al cambiar de producto
-        cbMayorista.checked = false;
-        cbDocena.checked    = false;
-        cbPolo.checked      = false;
-
+        tf && tf.classList.add("is-dirty");
         if (window.componentHandler) componentHandler.upgradeDom();
       });
     });
   });
 
-  // Agregar al carrito
-  document.getElementById("btn-agregarCarrito").addEventListener("click", (e) => {
-    e.preventDefault();
-
-    const codigo = productoSelect.value;
-    const cantidad = parseInt(cantidadInput.value.trim());
-
-    if (!codigo || isNaN(cantidad) || cantidad <= 0) {
-      Swal.fire("Datos requeridos", "Selecciona producto y cantidad válida", "warning");
-      return;
-    }
-
-    const prod = productosCache[codigo];
-    if (!prod || cantidad > prod.cantidad) {
-      Swal.fire("Sin stock", `Solo hay ${prod?.cantidad ?? 0} disponibles`, "error");
-      return;
-    }
-
-    // Precio unitario con descuentos (aplicado al precio de lista)
-    const baseLista = leerNumero(prod.precio) || 0;
-    const descuento =
-      (cbMayorista.checked ? 0.05 : 0) +
-      (cbDocena.checked    ? 0.03 : 0) +
-      (cbPolo.checked      ? 0.10 : 0);
-
-    const precioUnit = baseLista * (1 - descuento);
-
-    // Agregar/actualizar línea del carrito
-    const existente = carrito.find(p => p.codigo === codigo);
-    if (existente) {
-      if ((existente.cantidad + cantidad) > prod.cantidad) {
-        Swal.fire("Stock insuficiente", "Superas la cantidad disponible", "error");
-        return;
-      }
-      existente.cantidad += cantidad; // conserva precio previo
-    } else {
-      carrito.push({
-        codigo,
-        nombre: prod.nombre,
-        precio: precioUnit,
-        cantidad
-      });
-    }
-
-    // Limpiar UI
-    cantidadInput.value = "";
-    productoSelect.selectedIndex = 0;
-    const tfCosto = costoInput.closest(".mdl-textfield");
-    costoInput.value = "";
-    tfCosto && tfCosto.classList.remove("is-dirty");
-    cbMayorista.checked = cbDocena.checked = cbPolo.checked = false;
-    if (window.componentHandler) componentHandler.upgradeDom();
-
-    renderizarCarrito();
-  });
-
+  // ---------- CARRITO ----------
   function renderizarCarrito() {
-    tabla.innerHTML = "";
+    tablaBody.innerHTML = "";
     let total = 0;
     carrito.forEach((item, i) => {
       const subtotal = item.cantidad * item.precio;
       total += subtotal;
-      const row = document.createElement("tr");
-      row.innerHTML = `
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
         <td>${item.nombre}</td>
+        <td>${item.modo}</td>
         <td>${item.cantidad}</td>
         <td>${q(item.precio)}</td>
         <td>${q(subtotal)}</td>
         <td><button onclick="eliminarDelCarrito(${i})" class="mdl-button mdl-button--icon">
           <i class="zmdi zmdi-close"></i></button></td>
       `;
-      tabla.appendChild(row);
+      tablaBody.appendChild(tr);
     });
     totalDisplay.textContent = q(total);
   }
@@ -407,24 +416,102 @@
     renderizarCarrito();
   };
 
-  // Finalizar venta
+  document.getElementById("btn-agregarCarrito").addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const codigo = productoSelect.value;
+    const cantidad = parseInt(cantidadInput.value.trim());
+    const prod = productosCache[codigo];
+
+    if (!codigo || isNaN(cantidad) || cantidad <= 0) {
+      Swal.fire("Datos requeridos", "Selecciona producto y cantidad válida", "warning");
+      return;
+    }
+
+    if (!prod || cantidad > (prod.cantidad ?? 0)) {
+      Swal.fire("Sin stock", `Solo hay ${prod?.cantidad ?? 0} disponibles`, "error");
+      return;
+    }
+
+    // Precio según modo
+    const modo = modoSeleccionado();
+    const costo = obtenerCosto(prod);
+    let precioUnit;
+
+    if (modo !== "polo") {
+      precioUnit = calcularPrecioVenta(prod, modo);
+    } else {
+      // Manual: validar
+      const entrada = leerNumero(precioInput.value);
+      if (isNaN(entrada)) {
+        Swal.fire("Precio inválido", "Escribe un precio válido.", "warning");
+        return;
+      }
+      if (!isNaN(costo) && entrada < Number(costo)) {
+        Swal.fire("Precio no permitido", "El precio no puede ser menor al costo.", "error");
+        return;
+      }
+      precioUnit = +Number(entrada).toFixed(2);
+    }
+
+    // Agregar/actualizar línea (se separa por producto+modo+precio)
+    const existente = carrito.find(p => p.codigo === codigo && p.modo === modo && p.precio === precioUnit);
+    if (existente) {
+      if ((existente.cantidad + cantidad) > (prod.cantidad ?? 0)) {
+        Swal.fire("Stock insuficiente", "Superas la cantidad disponible", "error");
+        return;
+      }
+      existente.cantidad += cantidad;
+    } else {
+      carrito.push({
+        codigo,
+        nombre: prod.nombre,
+        modo,
+        precio: Number(precioUnit),
+        cantidad
+      });
+    }
+
+    // Limpiar cantidad
+    cantidadInput.value = "";
+
+    renderizarCarrito();
+    if (window.componentHandler) componentHandler.upgradeDom();
+  });
+
+  // ---------- FINALIZAR VENTA ----------
   document.getElementById("btn-finalizarVenta").addEventListener("click", () => {
     const cliente = clienteSelect.value;
+    const vendedor = (vendedorInput.value || "").trim();
+
     if (!cliente) {
       Swal.fire("Selecciona cliente", "", "info");
+      return;
+    }
+    if (!vendedor) {
+      Swal.fire("Falta vendedor", "Escribe el nombre del vendedor", "warning");
       return;
     }
     if (carrito.length === 0) {
       Swal.fire("Carrito vacío", "Agrega al menos un producto", "warning");
       return;
     }
+
     const venta = {
       cliente,
+      vendedor,
       fecha: new Date().toISOString().split("T")[0],
       total: carrito.reduce((t, p) => t + (p.precio * p.cantidad), 0),
-      productos: carrito.map(p => ({ codigo: p.codigo, nombre: p.nombre, cantidad: p.cantidad, precio: p.precio }))
+      productos: carrito.map(p => ({
+        codigo: p.codigo,
+        nombre: p.nombre,
+        modo: p.modo,
+        cantidad: p.cantidad,
+        precio: p.precio
+      }))
     };
 
+    // Generar código y guardar en ventas_19calle
     get(ref(db, "ventas_19calle")).then(snapshot => {
       const data = snapshot.val() || {};
       const codigos = Object.values(data)
@@ -437,46 +524,55 @@
         ? ref(db, "ventas_19calle/" + idVentaEditando)
         : push(ref(db, "ventas_19calle"));
 
-      return set(refVenta, venta);
-    }).then(() => {
+      return set(refVenta, venta).then(() => ({ refVenta }));
+    }).then(async () => {
+      // Log
       registrarAccion("registró una venta", "ventas_19calle", {
         codigo: venta.codigo,
         cliente: clienteSelect.querySelector(`option[value="${venta.cliente}"]`)?.textContent ?? venta.cliente,
+        vendedor: venta.vendedor,
         total: venta.total,
-        productos: venta.productos.map(p => `${p.nombre} (${p.cantidad})`)
+        productos: venta.productos.map(p => `${p.nombre} (${p.cantidad}) [${p.modo}]`)
       });
 
-      // actualizar stock
-      venta.productos.forEach(p => {
+      // Actualizar stock en productos_19calle
+      for (const p of venta.productos) {
         const prodRef = ref(db, "productos_19calle/" + p.codigo);
-        get(prodRef).then(snap => {
-          const actual = snap.val();
-          const nuevoStock = (actual?.cantidad || 0) - p.cantidad;
-          update(prodRef, { cantidad: nuevoStock });
-        });
-      });
+        const snap = await get(prodRef);
+        const actual = snap.val();
+        const nuevoStock = (actual?.cantidad || 0) - p.cantidad;
+        await update(prodRef, { cantidad: nuevoStock });
+      }
 
+      // Limpiar UI
       carrito = [];
       renderizarCarrito();
       clienteSelect.selectedIndex = 0;
+      vendedorInput.value = "";
+      productoSelect.selectedIndex = 0;
+      cantidadInput.value = "";
+      precioInput.value = "";
+      precioInput.disabled = true;
+      document.getElementById("modoMayorista").checked = true;
       idVentaEditando = null;
+
+      if (window.componentHandler) componentHandler.upgradeDom();
       Swal.fire("Venta registrada", "", "success");
+    }).catch(err => {
+      console.error(err);
+      Swal.fire("Error", "No se pudo guardar la venta", "error");
     });
   });
 
-  // Historial
-  let historial = {};
+  // ---------- HISTORIAL ----------
   onValue(ref(db, "ventas_19calle"), (snapshot) => {
     historial = snapshot.val() || {};
     renderizarVentas();
   });
 
-  const filtroCliente = document.getElementById("filtroCliente");
-  const filtroFecha   = document.getElementById("filtroFecha");
-
   function renderizarVentas() {
     listaVentas.innerHTML = "";
-    const texto = filtroCliente.value.trim().toLowerCase();
+    const texto = (filtroCliente.value || "").trim().toLowerCase();
     const fechaFiltro = filtroFecha.value;
 
     Object.entries(historial).forEach(([id, v]) => {
@@ -485,14 +581,16 @@
       const coincideFecha = fechaFiltro ? v.fecha === fechaFiltro : true;
       if (!coincideCliente || !coincideFecha) return;
 
-      const resumen = v.productos.map(p => `${p.nombre} (${p.cantidad})`).join(", ");
+      const resumen = (v.productos || []).map(p => `${p.nombre} (${p.cantidad})`).join(", ");
+      const vendedorTxt = v.vendedor ? ` | Vendedor: ${v.vendedor}` : "";
+
       const item = document.createElement("div");
       item.className = "mdl-list__item mdl-list__item--three-line";
       item.innerHTML = `
         <span class="mdl-list__item-primary-content">
           <i class="zmdi zmdi-receipt mdl-list__item-avatar"></i>
           <span><strong>${nombreCliente}</strong> – ${q(v.total)}</span>
-          <span class="mdl-list__item-sub-title">${v.fecha} | ${resumen}</span>
+          <span class="mdl-list__item-sub-title">${v.fecha} | ${resumen}${vendedorTxt}</span>
         </span>
         <span class="mdl-list__item-secondary-action">
           <button class="mdl-button mdl-js-button mdl-button--icon" onclick="imprimirVenta('${id}')">
@@ -512,41 +610,7 @@
   filtroCliente.addEventListener("input", renderizarVentas);
   filtroFecha.addEventListener("change", renderizarVentas);
 
-  // Botón imprimir listado
-  document.getElementById("btn-pdf-ventas").addEventListener("click", () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text("HISTORIAL DE VENTAS – SUPER PANDA", 20, 20);
-    doc.setFontSize(10);
-    doc.text("Fecha: " + new Date().toLocaleDateString(), 20, 28);
-
-    const texto = filtroCliente.value.trim().toLowerCase();
-    const fechaFiltro = filtroFecha.value;
-
-    const rows = Object.entries(historial)
-      .filter(([_, v]) => {
-        const cliente = clienteSelect.querySelector(`option[value="${v.cliente}"]`)?.textContent ?? v.cliente;
-        return (
-          cliente.toLowerCase().includes(texto) &&
-          (fechaFiltro ? v.fecha === fechaFiltro : true)
-        );
-      })
-      .map(([_, v]) => {
-        const cliente = clienteSelect.querySelector(`option[value="${v.cliente}"]`)?.textContent ?? v.cliente;
-        const resumen = v.productos.map(p => `${p.nombre} (${p.cantidad})`).join(", ");
-        return [cliente, v.fecha, resumen, q(v.total)];
-      });
-
-    doc.autoTable({
-      head: [["Cliente", "Fecha", "Productos", "Total"]],
-      body: rows,
-      startY: 35,
-      theme: "striped"
-    });
-    doc.save("ventas_filtradas_superpanda.pdf");
-  });
-
+  // ---------- EDITAR / ELIMINAR / IMPRIMIR ----------
   window.editarVenta = function (id) {
     const venta = historial[id];
     if (!venta) return;
@@ -554,27 +618,73 @@
     carrito = [];
     renderizarCarrito();
 
-    // Revertir stock y precargar carrito
-    venta.productos.forEach(p => {
+    // Reponer stock previo y precargar carrito
+    venta.productos.forEach(async p => {
       const productoRef = ref(db, "productos_19calle/" + p.codigo);
-      get(productoRef).then(snapshot => {
-        const actual = snapshot.val();
-        if (actual) {
-          const nuevoStock = (actual.cantidad || 0) + p.cantidad;
-          update(productoRef, { cantidad: nuevoStock });
-        }
-      });
-      carrito.push({ ...p });
+      const snap = await get(productoRef);
+      const actual = snap.val();
+      if (actual) {
+        const nuevoStock = (actual.cantidad || 0) + p.cantidad;
+        await update(productoRef, { cantidad: nuevoStock });
+      }
+      carrito.push({ ...p }); // mantiene modo, precio, cantidad
     });
 
     clienteSelect.value = venta.cliente;
+    vendedorInput.value = venta.vendedor || "";
+
     document.querySelector('[href="#tabNewVenta"]').click();
     renderizarCarrito();
 
+    // UI dirty
     setTimeout(() => {
       document.querySelectorAll('.mdl-textfield').forEach(el => el.classList.add('is-dirty'));
       if (window.componentHandler) componentHandler.upgradeDom();
     }, 50);
+  };
+
+  window.eliminarVenta = async function (id) {
+    const venta = historial[id];
+    if (!venta) return;
+
+    const ok = await Swal.fire({
+      title: "¿Eliminar venta?",
+      text: `Se eliminará ${venta.codigo || id} y se repondrá el stock de los productos.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar"
+    }).then(r => r.isConfirmed);
+
+    if (!ok) return;
+
+    try {
+      // 1) Reponer stock
+      await Promise.all(
+        (venta.productos || []).map(async (p) => {
+          const prodRef = ref(db, "productos_19calle/" + p.codigo);
+          const snap = await get(prodRef);
+          const actual = snap.val() || {};
+          const nuevo = (actual.cantidad || 0) + (p.cantidad || 0);
+          return update(prodRef, { cantidad: nuevo });
+        })
+      );
+
+      // 2) Eliminar la venta
+      await remove(ref(db, "ventas_19calle/" + id));
+
+      // 3) Registrar acción
+      registrarAccion("eliminó una venta", "ventas_19calle", {
+        codigo: venta.codigo || id,
+        cliente: clienteSelect.querySelector(`option[value="${venta.cliente}"]`)?.textContent ?? venta.cliente,
+        total: venta.total
+      });
+
+      Swal.fire("Venta eliminada", "Se repuso el stock correctamente.", "success");
+    } catch (e) {
+      console.error(e);
+      Swal.fire("Error", "No se pudo eliminar la venta.", "error");
+    }
   };
 
   window.imprimirVenta = async function (id) {
@@ -585,37 +695,42 @@
     const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "letter" });
 
     const clienteData = await get(ref(db, "clientes/" + venta.cliente)).then(s => s.val() || {});
-    const clienteNombre = clienteData.nombre ? `${clienteData.nombre} ${clienteData.apellido || ""}` : venta.cliente;
+    const clienteNombre = clienteData.nombre ? `${clienteData.nombre} ${clienteData.apellido || ""}`.trim() : venta.cliente;
     const telefono = clienteData.telefono || "-";
     const direccion = clienteData.direccion || "-";
     const nit = clienteData.nit || "-";
     const codigoVenta = venta.codigo || id.slice(-6).toUpperCase();
     const fecha = venta.fecha;
-
+    const vendedor = venta.vendedor || "-";
     const totalLetras = numALetras(venta.total.toFixed(2));
 
     function imprimirMitad(yOffset, copiaTexto) {
+      // Header
       doc.addImage("assets/img/logo.png", "PNG", 15, yOffset, 25, 25);
       doc.setFontSize(14);
       doc.text("SUPER PANDA", 43, yOffset + 10);
       doc.setFontSize(10);
       doc.text("NOTA DE ENTREGA", 43, yOffset + 16);
+
       doc.setFontSize(9);
       doc.text(`Código venta: ${codigoVenta}`, 150, yOffset + 12);
       doc.text(`Fecha: ${fecha}`, 150, yOffset + 16);
+      doc.text(`Vendedor: ${vendedor}`, 150, yOffset + 20);
+
       doc.setFontSize(12);
       doc.text(copiaTexto, 175, yOffset + 8, { align: "right" });
 
-      const rows = venta.productos.map(p => [
+      // Tabla
+      const rows = (venta.productos || []).map(p => [
         p.codigo || "-",
-        p.nombre,
+        p.nombre + (p.modo ? ` [${p.modo}]` : ""),
         p.cantidad,
         q(p.precio),
         q(p.cantidad * p.precio)
       ]);
 
       doc.autoTable({
-        head: [["Código", "Producto", "Cant.", "Precio Unitario", "Subtotal"]],
+        head: [["Código", "Producto (modo)", "Cant.", "Precio Unitario", "Subtotal"]],
         body: rows,
         startY: yOffset + 50,
         theme: "grid",
@@ -639,10 +754,46 @@
     doc.line(10, 143, 200, 143);
     doc.text("Corte de hoja ✂", 105, 145, { align: "center" });
     imprimirMitad(150, "COPIA");
+
     doc.save(`nota_${codigoVenta}.pdf`);
   };
 
-  // Número a letras (GT)
+  // ---------- PDF LISTADO ----------
+  document.getElementById("btn-pdf-ventas").addEventListener("click", () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("HISTORIAL DE VENTAS – SUPER PANDA 19 CALLE", 20, 20);
+    doc.setFontSize(10);
+    doc.text("Fecha: " + new Date().toLocaleDateString(), 20, 28);
+
+    const texto = (filtroCliente.value || "").trim().toLowerCase();
+    const fechaFiltro = filtroFecha.value;
+
+    const rows = Object.entries(historial)
+      .filter(([_, v]) => {
+        const cliente = clienteSelect.querySelector(`option[value="${v.cliente}"]`)?.textContent ?? v.cliente;
+        return (
+          cliente.toLowerCase().includes(texto) &&
+          (fechaFiltro ? v.fecha === fechaFiltro : true)
+        );
+      })
+      .map(([_, v]) => {
+        const cliente = clienteSelect.querySelector(`option[value="${v.cliente}"]`)?.textContent ?? v.cliente;
+        const resumen = (v.productos || []).map(p => `${p.nombre} (${p.cantidad}) [${p.modo || "-"}]`).join(", ");
+        return [cliente, v.fecha, v.vendedor || "-", resumen, q(v.total)];
+      });
+
+    doc.autoTable({
+      head: [["Cliente", "Fecha", "Vendedor", "Productos", "Total"]],
+      body: rows,
+      startY: 35,
+      theme: "striped"
+    });
+    doc.save("ventas_filtradas_superpanda_19calle.pdf");
+  });
+
+  // ---------- NÚMERO A LETRAS ----------
   function numALetras(numStr) {
     const UNIDADES = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
     const DECENAS  = ["", "diez", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"];

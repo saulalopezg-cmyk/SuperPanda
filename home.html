@@ -29,23 +29,25 @@
     import {
       getDatabase,
       ref,
-      get, 
+      get,
       onValue
     } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
 
-     const firebaseConfig = {
-    apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
-    authDomain: "superpanda-a89c0.firebaseapp.com",
-    projectId: "superpanda-a89c0",
-    storageBucket: "superpanda-a89c0.firebasestorage.app",
-    messagingSenderId: "730819312861",
-    appId: "1:730819312861:web:4a60912c859691d45a6f34"
-  };
+    // --- Firebase ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
+      authDomain: "superpanda-a89c0.firebaseapp.com",
+      projectId: "superpanda-a89c0",
+      storageBucket: "superpanda-a89c0.firebasestorage.app",
+      messagingSenderId: "730819312861",
+      appId: "1:730819312861:web:4a60912c859691d45a6f34"
+    };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const database = getDatabase(app);
 
+    // --- Sesión y cabecera lateral ---
     onAuthStateChanged(auth, (user) => {
       if (user) {
         get(ref(database, 'usuarios/' + user.uid)).then((snapshot) => {
@@ -64,22 +66,55 @@
         window.location.href = "index.html";
       });
     };
-    function contarRama(ruta, idElemento, filtroFn = null) {
-  onValue(ref(database, ruta), snapshot => {
-    const datos = snapshot.val() || {};
-    let total = Object.keys(datos).length;
-    if (filtroFn) {
-      total = Object.values(datos).filter(filtroFn).length;
-    }
-    document.getElementById(idElemento).innerHTML = `${total}<br><small>${document.getElementById(idElemento).innerText.split('\n')[1]}</small>`;
-  });
-}
 
-contarRama("usuarios", "totalAdmins", u => u.rol === "admin");
-contarRama("clientes", "totalClientes");
-contarRama("proveedores", "totalProveedores");
-contarRama("productos", "totalProductos");
-contarRama("ventas", "totalVentas");
+    // --- Utilidad para contar una rama con filtro opcional ---
+    function contarRama(ruta, idElemento, filtroFn = null) {
+      const el = document.getElementById(idElemento);
+      if (!el) return;
+
+      const label = el.dataset.label || 'Total';
+      onValue(ref(database, ruta), snapshot => {
+        const datos = snapshot.val() || {};
+
+        let total;
+        if (filtroFn) {
+          total = Object.values(datos).filter(filtroFn).length;
+        } else {
+          total = Object.keys(datos).length;
+        }
+
+        el.innerHTML = `${total}<br><small>${label}</small>`;
+      });
+    }
+
+    // === CONTADORES ===
+    // Admins: usuarios cuyo rol === "admin"
+    contarRama("usuarios", "totalAdmins", u => u?.rol === "admin");
+
+    // Clientes (todos)
+    contarRama("clientes", "totalClientes");
+
+    // Proveedores (todos)
+    contarRama("proveedores", "totalProveedores");
+
+    // ------- Productos -------
+    // Cambia aquí si tu inventario real está en otra rama:
+    // const RUTA_PRODUCTOS = "productos_19calle";
+    const RUTA_PRODUCTOS = "productos";
+
+    // Regla: cuenta solo productos con cantidad > 0, con nombre válido
+    // y no marcados como inactivos/eliminados.
+    const filtroProductos = (p) => {
+      const cantidad = Number(p?.cantidad ?? 0);
+      const nombreOk = typeof p?.nombre === "string" && p.nombre.trim().length > 0;
+      const activoOk = p?.activo !== false && p?.eliminado !== true && p?.borrado !== true;
+      return cantidad > 0 && nombreOk && activoOk;
+    };
+
+    contarRama(RUTA_PRODUCTOS, "totalProductos", filtroProductos);
+
+    // Ventas (todas). Si tienes ventas por sucursal, cámbialo a "ventas_19calle"
+    contarRama("ventas", "totalVentas");
   </script>
 </head>
 
@@ -130,8 +165,9 @@ contarRama("ventas", "totalVentas");
           <li><a href="providers.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-truck"></i></div><div class="navLateral-body-cr hide-on-tablet">Proveedores</div></a></li>
           <li><a href="ventas.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div><div class="navLateral-body-cr hide-on-tablet">Ventas</div></a></li>
           <li><a href="cuentas-cobrar.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div><div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div></a></li>
-        <li><a href="generar_xls.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div><div class="navLateral-body-cr hide-on-tablet">Generar XLS</div></a></li>
-  
+          <li><a href="generar_xls.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div><div class="navLateral-body-cr hide-on-tablet">Generar XLS</div></a></li>
+             <li><a href="envio.html" class="full-width active"><div class="navLateral-body-cl"><i class="zmdi zmdi-local-shipping"></i></div><div class="navLateral-body-cr hide-on-tablet">Guía / Nota de envío</div></a></li>
+ 
         </ul>
       </nav>
     </div>
@@ -143,24 +179,40 @@ contarRama("ventas", "totalVentas");
       <h3 class="text-center tittles">Panel de administración</h3>
 
       <!-- Mosaicos -->
-<article class="full-width tile" onclick="location.href='admin.html'" style="cursor:pointer;"><div class="tile-text">
-<span class="text-condensedLight" id="totalAdmins">0<br><small>Administradores</small></span></div><i class="zmdi zmdi-account tile-icon"></i></article>
+      <article class="full-width tile" onclick="location.href='admin.html'" style="cursor:pointer;">
+        <div class="tile-text">
+          <span class="text-condensedLight" id="totalAdmins" data-label="Administradores">0<br><small>Administradores</small></span>
+        </div>
+        <i class="zmdi zmdi-account tile-icon"></i>
+      </article>
 
-<article class="full-width tile" onclick="location.href='client.html'" style="cursor:pointer;"><div class="tile-text">
-<span class="text-condensedLight" id="totalClientes">0<br><small>Clientes</small></span></div><i class="zmdi zmdi-accounts tile-icon"></i></article>
+      <article class="full-width tile" onclick="location.href='client.html'" style="cursor:pointer;">
+        <div class="tile-text">
+          <span class="text-condensedLight" id="totalClientes" data-label="Clientes">0<br><small>Clientes</small></span>
+        </div>
+        <i class="zmdi zmdi-accounts tile-icon"></i>
+      </article>
 
-<article class="full-width tile" onclick="location.href='providers.html'" style="cursor:pointer;"><div class="tile-text">
-<span class="text-condensedLight" id="totalProveedores">0<br><small>Proveedores</small></span></div><i class="zmdi zmdi-truck tile-icon"></i></article>
+      <article class="full-width tile" onclick="location.href='providers.html'" style="cursor:pointer;">
+        <div class="tile-text">
+          <span class="text-condensedLight" id="totalProveedores" data-label="Proveedores">0<br><small>Proveedores</small></span>
+        </div>
+        <i class="zmdi zmdi-truck tile-icon"></i>
+      </article>
 
-<article class="full-width tile" onclick="location.href='inventory.html'" style="cursor:pointer;"><div class="tile-text">
-<span class="text-condensedLight" id="totalProductos">0<br><small>Productos</small></span></div><i class="zmdi zmdi-washing-machine tile-icon"></i></article>
+      <article class="full-width tile" onclick="location.href='inventory.html'" style="cursor:pointer;">
+        <div class="tile-text">
+          <span class="text-condensedLight" id="totalProductos" data-label="Productos">0<br><small>Productos</small></span>
+        </div>
+        <i class="zmdi zmdi-washing-machine tile-icon"></i>
+      </article>
 
-<article class="full-width tile" onclick="location.href='ventas.html'" style="cursor:pointer;">
-  <div class="tile-text">
-    <span class="text-condensedLight" id="totalVentas">0<br><small>Ventas</small></span>
-  </div>
-  <i class="zmdi zmdi-shopping-cart tile-icon"></i>
-</article>
+      <article class="full-width tile" onclick="location.href='ventas.html'" style="cursor:pointer;">
+        <div class="tile-text">
+          <span class="text-condensedLight" id="totalVentas" data-label="Ventas">0<br><small>Ventas</small></span>
+        </div>
+        <i class="zmdi zmdi-shopping-cart tile-icon"></i>
+      </article>
     </section>
   </section>
 </body>

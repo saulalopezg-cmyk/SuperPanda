@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Compras – Super Panda</title>
+
+  <link rel="stylesheet" href="css/normalize.css" />
+  <link rel="stylesheet" href="css/sweetalert2.css" />
+  <link rel="stylesheet" href="css/material.min.css" />
+  <link rel="stylesheet" href="css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="css/jquery.mCustomScrollbar.css" />
+  <link rel="stylesheet" href="css/main.css" />
+
+  <!-- Scripts base -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/jquery-1.11.2.min.js"><\/script>')</script>
+  <script src="js/material.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+	<div class="full-width navBar">
+    <div class="full-width navBar-options">
+      <i class="zmdi zmdi-more-vert btn-menu" id="btn-menu"></i>
+      <div class="mdl-tooltip" for="btn-menu">Menú</div>
+      <nav class="navBar-options-list">
+        <ul class="list-unstyle">
+          <li class="btn-exit" onclick="logout()">
+            <i class="zmdi zmdi-power"></i>
+            <div class="mdl-tooltip" for="btn-exit">Cerrar sesión</div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+  <!-- navBar -->
+    <section class="full-width navLateral">
+    <div class="full-width navLateral-bg btn-menu"></div>
+    <div class="full-width navLateral-body">
+      <div class="full-width navLateral-body-logo text-center tittles">
+        <i class="zmdi zmdi-close btn-menu"></i> COMPRAS 19 CALLE
+      </div>
+      <figure class="full-width" style="height: 77px;">
+        <div class="navLateral-body-cl">
+          <img src="assets/img/logo.png" alt="Avatar" class="img-responsive" />
+        </div>
+        <figcaption class="navLateral-body-cr hide-on-tablet">
+          <span>
+            <br />
+            <small></small>
+          </span>
+        </figcaption>
+      </figure>
+      <div class="full-width tittles navLateral-body-tittle-menu">
+        <i class="zmdi zmdi-desktop-mac"></i><span class="hide-on-tablet"> MENÚ</span>
+      </div>
+      <nav class="full-width">
+        <ul class="full-width list-unstyle menu-principal">
+          <li><a href="home_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-view-dashboard"></i></div><div class="navLateral-body-cr hide-on-tablet">Inicio</div></a></li>
+          <li><a href="inventory_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-store"></i></div><div class="navLateral-body-cr hide-on-tablet">Inventario</div></a></li>
+          <li><a href="client_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-accounts"></i></div><div class="navLateral-body-cr hide-on-tablet">Clientes</div></a></li>
+          <li><a href="sales_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-basket"></i></div><div class="navLateral-body-cr hide-on-tablet">Compras</div></a></li>
+          <li><a href="providers_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-truck"></i></div><div class="navLateral-body-cr hide-on-tablet">Proveedores</div></a></li>
+          <li><a href="ventas_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div><div class="navLateral-body-cr hide-on-tablet">Ventas</div></a></li>
+          <li><a href="cuentas-cobrar_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div><div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div></a></li>
+        <li><a href="generar_xls_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div><div class="navLateral-body-cr hide-on-tablet">Generar XLS</div></a></li>
+          <li><a href="envio_19calle.html" class="full-width active"><div class="navLateral-body-cl"><i class="zmdi zmdi-local-shipping"></i></div><div class="navLateral-body-cr hide-on-tablet">Guía / Nota de envío</div></a></li>
+
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Contenido -->
+  <section class="full-width pageContent">
+    <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+      <div class="mdl-tabs__tab-bar">
+        <a href="#tabNewCompra" class="mdl-tabs__tab is-active">Registrar compra</a>
+        <a href="#tabListCompras" class="mdl-tabs__tab">Historial de compras</a>
+      </div>
+
+      <!-- Panel: Nueva compra -->
+	   
+
+      <div class="mdl-tabs__panel is-active" id="tabNewCompra">
+        <div class="mdl-grid">
+          <div class="mdl-cell mdl-cell--6-col mdl-cell--3-offset-desktop">
+            <div class="full-width panel mdl-shadow--2dp">
+              <div class="full-width panel-tittle bg-primary text-center tittles">Registrar nueva compra</div>
+              <div class="full-width panel-content">
+                <form id="form-compra">
+					<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					<input type="text" class="mdl-textfield__input" id="compraFactura" />
+  					<label class="mdl-textfield__label" for="compraFactura">No. de factura</label>
+					</div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="compraProveedor" />
+                    <label class="mdl-textfield__label" for="compraProveedor">Proveedor</label>
+                  </div>
+
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <select class="mdl-textfield__input" id="compraProducto">
+                      <option value="">Selecciona un producto</option>
+                    </select>
+                    <label class="mdl-textfield__label" for="compraProducto"></label>
+                  </div>
+
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input type="number" class="mdl-textfield__input" id="compraCantidad" />
+                    <label class="mdl-textfield__label" for="compraCantidad">Cantidad</label>
+                  </div>
+
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input type="number" class="mdl-textfield__input" id="compraPrecio" step="0.01" />
+                    <label class="mdl-textfield__label" for="compraPrecio">Precio unitario</label>
+                  </div>
+
+                  <p class="text-center">
+                    <button id="btn-addCompra" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
+                      Registrar compra
+                    </button>
+                  </p>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Historial de compras (llega en la parte 2) -->
+	   
+      <div class="mdl-tabs__panel" id="tabListCompras">
+        <div class="mdl-grid">
+          <div class="mdl-cell mdl-cell--10-col mdl-cell--1-offset-desktop">
+            <div class="full-width panel mdl-shadow--2dp">
+              <div class="full-width panel-tittle bg-success text-center tittles">Historial de compras</div>
+              <div class="full-width panel-content">
+                <div class="mdl-list" id="compra-list">
+                  <!-- Aquí se insertará el historial -->
+				   
+				   
+                </div>
+				<div style="text-align:right; margin-bottom:10px;">
+  				<input type="text" id="filtroCompras" placeholder="Buscar por proveedor o producto..." class="mdl-textfield__input" style="width:50%;" />
+				</div>
+              </div>
+            </div>
+          </div>
+        </div>
+		<p class="text-center">
+  <button id="btn-pdf-compras" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+    <i class="zmdi zmdi-print"></i> Imprimir historial de compras
+  </button>
+</p>
+      </div> <!-- Fin historial -->
+	  
+    </div> <!-- Fin tabs -->
+  </section>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+  import {
+    getDatabase,
+    ref,
+    set,
+    get,
+    update,
+    push,
+    onValue
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+  function registrarAccion(accion, modulo, detalles = {}) {
+  const user = auth.currentUser;
+  if (!user) return;
+  const registro = {
+    fecha: new Date().toISOString(),
+    uid: user.uid,
+    correo: user.email,
+    accion,
+    modulo,
+    detalles
+  };
+  push(ref(db, "registros"), registro);
+}
+
+    const firebaseConfig = {
+    apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
+    authDomain: "superpanda-a89c0.firebaseapp.com",
+    projectId: "superpanda-a89c0",
+    storageBucket: "superpanda-a89c0.firebasestorage.app",
+    messagingSenderId: "730819312861",
+    appId: "1:730819312861:web:4a60912c859691d45a6f34"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      Swal.fire("Sesión cerrada", "Debes iniciar sesión para acceder", "info")
+        .then(() => window.location.href = "index.html");
+    }
+  });
+
+  window.logout = function () {
+    signOut(auth).then(() => window.location.href = "index.html");
+  };
+
+  // Cargar productos en el select
+  const selectProducto = document.getElementById("compraProducto");
+  get(ref(db, "productos_19calle")).then((snapshot) => {
+    const productos = snapshot.val();
+    if (!productos) return;
+
+    Object.values(productos).forEach(prod => {
+      const option = document.createElement("option");
+      option.value = prod.codigo;
+      option.textContent = `${prod.codigo} – ${prod.nombre}`;
+      selectProducto.appendChild(option);
+    });
+  });
+
+  // Registrar compra
+  document.getElementById("btn-addCompra").addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const proveedor = document.getElementById("compraProveedor").value.trim();
+    const codigoProducto = document.getElementById("compraProducto").value;
+    const cantidad = parseInt(document.getElementById("compraCantidad").value.trim());
+    const precioUnitario = parseFloat(document.getElementById("compraPrecio").value.trim());
+
+    if (!proveedor || !codigoProducto || isNaN(cantidad) || isNaN(precioUnitario)) {
+      Swal.fire("Campos requeridos", "Debes completar todos los campos correctamente", "warning");
+      return;
+    }
+
+    const fecha = new Date().toISOString().split("T")[0];
+    const total = (cantidad * precioUnitario).toFixed(2);
+	const factura = document.getElementById("compraFactura").value.trim();
+
+   const compra = {
+    proveedor,
+    codigoProducto,
+    cantidad,
+    precioUnitario,
+    total,
+    fecha,
+    factura
+  };
+ 
+if (compraEditando) {
+  get(ref(db, "compras_19calle/" + compraEditando)).then(snapshot => {
+    const anterior = snapshot.val();
+    if (!anterior) return;
+
+    const refProdAnterior = ref(db, "productos_19calle/" + anterior.codigoProducto);
+    const refProdNuevo = ref(db, "productos_19calle/" + compra.codigoProducto);
+
+    // 1. Restar stock anterior
+    get(refProdAnterior).then(snapAnterior => {
+      const prodAntes = snapAnterior.val();
+      const nuevoStockAnterior = (prodAntes?.cantidad || 0) - anterior.cantidad;
+      return update(refProdAnterior, { cantidad: nuevoStockAnterior });
+    }).then(() => {
+      // 2. Sumar stock nuevo
+      return get(refProdNuevo).then(snapNuevo => {
+        const prodNuevo = snapNuevo.val();
+        const nuevoStock = (prodNuevo?.cantidad || 0) + compra.cantidad;
+        return update(refProdNuevo, { cantidad: nuevoStock });
+      });
+    }).then(() => {
+      // 3. Guardar nueva compra editada
+      return set(ref(db, "compras_19calle/" + compraEditando), compra);
+    }).then(() => {
+      // 4. Registrar y reiniciar
+      registrarAccion("editó una compra", "compras_19calle", {
+        ...compra,
+        cambioDeProducto: anterior.codigoProducto !== compra.codigoProducto
+      });
+      Swal.fire("Compra actualizada", "Stock ajustado correctamente", "success");
+      document.getElementById("form-compra").reset();
+      compraEditando = null;
+      selectProducto.selectedIndex = 0;
+    }).catch(() => {
+      Swal.fire("Error", "No se pudo ajustar el stock", "error");
+    });
+  });
+} else {
+  // NUEVA COMPRA
+  push(ref(db, "compras_19calle"), compra).then(() => {
+    registrarAccion("registró una compra", "compras_19calle", {
+      proveedor,
+      producto: codigoProducto,
+      cantidad,
+      precioUnitario,
+      total
+    });
+
+    const productoRef = ref(db, "productos_19calle/" + codigoProducto);
+    get(productoRef).then((snap) => {
+      const producto = snap.val();
+      const nuevoStock = (producto?.cantidad || 0) + cantidad;
+      return update(productoRef, { cantidad: nuevoStock });
+    }).then(() => {
+      Swal.fire("Compra registrada", `Stock actualizado a ${cantidad}`, "success");
+      document.getElementById("form-compra").reset();
+      selectProducto.selectedIndex = 0;
+    });
+  }).catch(() => {
+    Swal.fire("Error", "No se pudo registrar la compra", "error");
+  });
+
+  compraEditando = null;
+}
+    });
+  
+
+  // Mostrar historial
+  document.getElementById("btn-pdf-compras").addEventListener("click", () => {
+	const doc = new window.jspdf.jsPDF();
+  doc.setFontSize(16);
+  doc.text("HISTORIAL DE COMPRAS – SUPER PANDA 19 CALLE", 20, 20);
+  doc.setFontSize(10);
+  doc.text("Fecha: " + new Date().toLocaleDateString(), 20, 28);
+
+  get(ref(db, "compras_19calle")).then((snapshot) => {
+    const data = snapshot.val();
+    if (!data) {
+      Swal.fire("Nada para imprimir", "No hay compras registradas", "info");
+      return;
+    }
+
+    const rows = Object.values(data).map(c => [
+      c.factura || "-", c.proveedor, c.codigoProducto, c.fecha,
+      c.cantidad, "Q" + c.precioUnitario.toFixed(2), "Q" + c.total
+    ]);
+
+    doc.autoTable({
+      head: [["Factura", "Proveedor", "Producto", "Fecha", "Cantidad", "Precio", "Total"]],
+      body: rows,
+      startY: 35,
+      theme: "striped"
+    });
+
+    doc.save("compras_superpanda_19calle.pdf");
+  });
+});
+  document.getElementById("filtroCompras").addEventListener("input", (e) => {
+  const filtro = e.target.value.toLowerCase();
+  document.querySelectorAll("#compra-list .mdl-list__item").forEach(item => {
+    item.style.display = item.textContent.toLowerCase().includes(filtro) ? "block" : "none";
+  });
+});
+  const historial = document.getElementById("compra-list");
+  onValue(ref(db, "compras_19calle"), (snapshot) => {
+    historial.innerHTML = "";
+    const data = snapshot.val();
+    if (!data) return;
+
+    Object.entries(data).forEach(([id, compra]) => {
+      const item = document.createElement("div");
+      item.className = "mdl-list__item mdl-list__item--three-line";
+      item.innerHTML = `
+        <span class="mdl-list__item-primary-content">
+    <i class="zmdi zmdi-truck mdl-list__item-avatar"></i>
+    <span><strong>${compra.codigoProducto}</strong> – ${compra.proveedor}</span>
+    <span class="mdl-list__item-sub-title">${compra.fecha} | Factura: ${compra.factura || "-"} | Q${compra.total}</span>
+  </span>
+  <span class="mdl-list__item-secondary-action">
+    <button class="mdl-button mdl-js-button mdl-button--icon" data-id="${id}" onclick="editarCompra('${id}')">
+      <i class="zmdi zmdi-edit"></i>
+    </button>
+    <button class="mdl-button mdl-js-button mdl-button--icon" data-id="${id}" onclick="eliminarCompra('${id}')">
+      <i class="zmdi zmdi-delete"></i>
+    </button>
+  </span>
+      `;
+
+
+
+      historial.appendChild(item);
+    });
+  });
+  // Fuera del onValue
+  window.editarCompra = function (id) {
+      compraEditando = id;    
+  get(ref(db, "compras_19calle/" + id)).then(snapshot => {
+  
+    const compra = snapshot.val();
+    if (!compra) return;
+
+document.getElementById("compraProveedor").value = compra.proveedor;
+document.getElementById("compraCantidad").value = compra.cantidad;
+document.getElementById("compraPrecio").value = compra.precioUnitario;
+document.getElementById("compraFactura").value = compra.factura || "";
+
+// Selección de producto en el <select>
+const select = document.getElementById("compraProducto");
+select.value = compra.codigoProducto;
+const contenedor = select.closest(".mdl-textfield");
+if (contenedor) contenedor.classList.add("is-dirty");
+
+// Activar pestaña y enfocar
+document.querySelector('[href="#tabNewCompra"]').click();
+document.getElementById("tabNewCompra").scrollIntoView({ behavior: "smooth" });
+
+// Forzar labels a levantarse en todos los campos
+["compraProveedor", "compraCantidad", "compraPrecio", "compraFactura"].forEach(id => {
+  const input = document.getElementById(id);
+  const wrapper = input.closest(".mdl-textfield");
+  if (wrapper) wrapper.classList.add("is-dirty");
+});
+
+window.eliminarCompra = function (id) {
+  Swal.fire({
+    title: "¿Eliminar compra?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Sí, eliminar"
+  }).then(result => {
+    if (result.isConfirmed) {
+      get(ref(db, "compras_19calle/" + id)).then(snapshot => {
+        const compra = snapshot.val();
+        if (!compra) return;
+
+        set(ref(db, "compras_19calle/" + id), null).then(() => {
+          registrarAccion("eliminó una compra", "compras_19calle", {
+            proveedor: compra.proveedor,
+            producto: compra.codigoProducto,
+            cantidad: compra.cantidad,
+            precioUnitario: compra.precioUnitario,
+            total: compra.total,
+            factura: compra.factura || "-",
+            fecha: compra.fecha
+          });
+          Swal.fire("Eliminado", "Compra eliminada correctamente", "success");
+        });
+      });
+    }
+  });
+};  })};
+
+let compraEditando = null;
+
+</script>
+</body>
+</html>

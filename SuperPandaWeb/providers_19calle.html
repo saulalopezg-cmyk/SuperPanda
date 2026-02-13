@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Proveedores – Super Panda</title>
+
+  <!-- Estilos base -->
+  <link rel="stylesheet" href="css/normalize.css" />
+  <link rel="stylesheet" href="css/sweetalert2.css" />
+  <link rel="stylesheet" href="css/material.min.css" />
+  <link rel="stylesheet" href="css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="css/jquery.mCustomScrollbar.css" />
+  <link rel="stylesheet" href="css/main.css" />
+
+  <!-- Scripts base -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/jquery-1.11.2.min.js"><\/script>')</script>
+  <script src="js/material.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+</head>
+
+<body>
+
+  <!-- Barra superior -->
+  <div class="full-width navBar">
+    <div class="full-width navBar-options">
+      <i class="zmdi zmdi-more-vert btn-menu" id="btn-menu"></i>
+      <div class="mdl-tooltip" for="btn-menu">Menú</div>
+      <nav class="navBar-options-list">
+        <ul class="list-unstyle">
+          <li class="btn-exit" onclick="logout()">
+            <i class="zmdi zmdi-power"></i>
+            <div class="mdl-tooltip" for="btn-exit">Cerrar sesión</div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Panel lateral -->
+    <section class="full-width navLateral">
+    <div class="full-width navLateral-bg btn-menu"></div>
+    <div class="full-width navLateral-body">
+      <div class="full-width navLateral-body-logo text-center tittles">
+        <i class="zmdi zmdi-close btn-menu"></i> PROVEEDORES
+      </div>
+      <figure class="full-width" style="height: 77px;">
+        <div class="navLateral-body-cl">
+<img src="assets/img/logo.png" ... />  </div>
+        <figcaption class="navLateral-body-cr hide-on-tablet">
+          <span>
+            <br />
+            <small></small>
+          </span>
+        </figcaption>
+      </figure>
+      <div class="full-width tittles navLateral-body-tittle-menu">
+        <i class="zmdi zmdi-desktop-mac"></i><span class="hide-on-tablet"> MENÚ</span>
+      </div>
+      <nav class="full-width">
+        <ul class="full-width list-unstyle menu-principal">
+          <li><a href="home_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-view-dashboard"></i></div><div class="navLateral-body-cr hide-on-tablet">Inicio</div></a></li>
+          <li><a href="inventory_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-store"></i></div><div class="navLateral-body-cr hide-on-tablet">Inventario</div></a></li>
+          <li><a href="client_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-accounts"></i></div><div class="navLateral-body-cr hide-on-tablet">Clientes</div></a></li>
+          <li><a href="sales_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-basket"></i></div><div class="navLateral-body-cr hide-on-tablet">Compras</div></a></li>
+          <li><a href="providers_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-truck"></i></div><div class="navLateral-body-cr hide-on-tablet">Proveedores</div></a></li>
+          <li><a href="ventas_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div><div class="navLateral-body-cr hide-on-tablet">Ventas</div></a></li>
+          <li><a href="cuentas-cobrar_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div><div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div></a></li>
+        <li><a href="generar_xls_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div><div class="navLateral-body-cr hide-on-tablet">Generar XLS</div></a></li>
+           <li><a href="envio_19calle.html" class="full-width active"><div class="navLateral-body-cl"><i class="zmdi zmdi-local-shipping"></i></div><div class="navLateral-body-cr hide-on-tablet">Guía / Nota de envío</div></a></li>
+
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+  <section class="full-width pageContent">
+    <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+      <div class="mdl-tabs__tab-bar">
+        <a href="#tabNewProvider" class="mdl-tabs__tab is-active">Registrar proveedor</a>
+        <a href="#tabListProvider" class="mdl-tabs__tab">Listado</a>
+      </div>
+
+      <!-- Pestaña: Nuevo proveedor -->
+      <div class="mdl-tabs__panel is-active" id="tabNewProvider">
+        <div class="mdl-grid">
+          <div class="mdl-cell mdl-cell--6-col mdl-cell--3-offset-desktop">
+            <div class="full-width panel mdl-shadow--2dp">
+              <div class="full-width panel-tittle bg-primary text-center tittles">Nuevo proveedor</div>
+              <div class="full-width panel-content">
+                <form id="form-proveedor">
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="nombreProveedor" />
+                    <label class="mdl-textfield__label" for="nombreProveedor">Nombre de empresa</label>
+                  </div>
+
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="nitProveedor" />
+                    <label class="mdl-textfield__label" for="nitProveedor">NIT</label>
+                  </div>
+
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="contactoProveedor" />
+                    <label class="mdl-textfield__label" for="contactoProveedor">Persona de contacto</label>
+                  </div>
+
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="telefonoProveedor" />
+                    <label class="mdl-textfield__label" for="telefonoProveedor">Teléfono</label>
+                  </div>
+
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="direccionProveedor" />
+                    <label class="mdl-textfield__label" for="direccionProveedor">Dirección</label>
+                  </div>
+
+                  <p class="text-center">
+                    <button id="btn-addProveedor" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                      Guardar proveedor
+                    </button>
+                  </p>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestaña: Listado de proveedores -->
+      <div class="mdl-tabs__panel" id="tabListProvider">
+        <div class="mdl-grid">
+          <div class="mdl-cell mdl-cell--10-col mdl-cell--1-offset-desktop">
+            <div class="full-width panel mdl-shadow--2dp">
+              <div class="full-width panel-tittle bg-success text-center tittles">Proveedores registrados</div>
+              <div class="full-width panel-content">
+                <div style="text-align:right;">
+                  <input type="text" id="filtroProveedores" placeholder="Buscar proveedor..." class="mdl-textfield__input" style="width:40%;margin-bottom:10px;" />
+                  <button id="btn-pdf-proveedores" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                    <i class="zmdi zmdi-print"></i> Imprimir listado
+                  </button>
+                </div>
+                <div class="mdl-list" id="lista-proveedores">
+                  <!-- Lista dinámica -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- fin tabs -->
+  </section>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+  import {
+    getDatabase,
+    ref,
+    set,
+    get,
+    onValue,
+    update,
+    remove
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+  import { push } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+function registrarAccion(accion, modulo, detalles = {}) {
+  const user = auth.currentUser;
+  if (!user) return;
+  const registro = {
+    fecha: new Date().toISOString(),
+    uid: user.uid,
+    correo: user.email,
+    accion,
+    modulo,
+    detalles
+  };
+  push(ref(db, "registros"), registro);
+}
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
+    authDomain: "superpanda-a89c0.firebaseapp.com",
+    projectId: "superpanda-a89c0",
+    storageBucket: "superpanda-a89c0.firebasestorage.app",
+    messagingSenderId: "730819312861",
+    appId: "1:730819312861:web:4a60912c859691d45a6f34"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      Swal.fire("Sesión cerrada", "Debes iniciar sesión para acceder", "info")
+        .then(() => window.location.href = "index.html");
+    }
+  });
+
+  window.logout = function () {
+    signOut(auth).then(() => window.location.href = "index.html");
+  };
+
+  let proveedorEditando = null;
+
+  const form = document.getElementById("form-proveedor");
+  const lista = document.getElementById("lista-proveedores");
+  const filtro = document.getElementById("filtroProveedores");
+
+  const limpiarFormulario = () => {
+    form.reset();
+    proveedorEditando = null;
+  };
+
+  document.getElementById("btn-addProveedor").addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const nombre = document.getElementById("nombreProveedor").value.trim();
+    const nit = document.getElementById("nitProveedor").value.trim();
+    const contacto = document.getElementById("contactoProveedor").value.trim();
+    const telefono = document.getElementById("telefonoProveedor").value.trim();
+    const direccion = document.getElementById("direccionProveedor").value.trim();
+
+    if (!nombre) {
+      Swal.fire("Campos requeridos", "El nombre del proveedor es obligatorio", "warning");
+      return;
+    }
+
+    const proveedor = { nombre, nit, contacto, telefono, direccion };
+
+    if (proveedorEditando) {
+  update(ref(db, "proveedores/" + proveedorEditando), proveedor).then(() => {
+    registrarAccion("editó un proveedor", "proveedores", { codigo: proveedorEditando, ...proveedor });
+    Swal.fire("Proveedor actualizado", "", "success");
+    limpiarFormulario();
+  });
+} else {
+  get(ref(db, "proveedores")).then(snapshot => {
+    const data = snapshot.val() || {};
+    const total = Object.keys(data).length + 1;
+    const nuevoCodigo = `p${total.toString().padStart(2, "2")}`;
+    return set(ref(db, "proveedores/" + nuevoCodigo), proveedor).then(() => {
+      registrarAccion("registró un proveedor", "proveedores", { codigo: nuevoCodigo, ...proveedor });
+    });
+  }).then(() => {
+    Swal.fire("Proveedor guardado", "", "success");
+    limpiarFormulario();
+  });
+}
+      });
+  const renderizarProveedores = (data) => {
+    const filtroTexto = filtro.value.trim().toLowerCase();
+    lista.innerHTML = "";
+
+    Object.entries(data).forEach(([codigo, p]) => {
+      const match = `${codigo} ${p.nombre} ${p.contacto} ${p.nit}`.toLowerCase().includes(filtroTexto);
+      if (!match) return;
+
+      const item = document.createElement("div");
+      item.className = "mdl-list__item mdl-list__item--two-line";
+      item.innerHTML = `
+        <span class="mdl-list__item-primary-content">
+          <i class="zmdi zmdi-truck mdl-list__item-avatar"></i>
+          <span><strong>${codigo.toUpperCase()}</strong>: ${p.nombre}</span>
+          <span class="mdl-list__item-sub-title">Contacto: ${p.contacto || "-"} | Tel: ${p.telefono || "-"}</span>
+        </span>
+        <span class="mdl-list__item-secondary-action">
+          <button class="mdl-button mdl-js-button mdl-button--icon" onclick="editarProveedor('${codigo}')">
+            <i class="zmdi zmdi-edit"></i>
+          </button>
+          <button class="mdl-button mdl-js-button mdl-button--icon" onclick="eliminarProveedor('${codigo}')">
+            <i class="zmdi zmdi-delete"></i>
+          </button>
+        </span>
+      `;
+      lista.appendChild(item);
+    });
+  };
+
+  let proveedoresGuardados = {};
+
+  onValue(ref(db, "proveedores"), (snapshot) => {
+    proveedoresGuardados = snapshot.val() || {};
+    renderizarProveedores(proveedoresGuardados);
+  });
+
+  filtro.addEventListener("input", () => {
+    renderizarProveedores(proveedoresGuardados);
+  });
+
+  window.editarProveedor = function (id) {
+    const p = proveedoresGuardados[id];
+    if (!p) return;
+
+    proveedorEditando = id;
+    document.getElementById("nombreProveedor").value = p.nombre;
+    document.getElementById("nitProveedor").value = p.nit || "";
+    document.getElementById("contactoProveedor").value = p.contacto || "";
+    document.getElementById("telefonoProveedor").value = p.telefono || "";
+    document.getElementById("direccionProveedor").value = p.direccion || "";
+
+    document.querySelector('[href="#tabNewProvider"]').click();
+
+    setTimeout(() => {
+      document.querySelectorAll(".mdl-textfield").forEach(el => el.classList.add("is-dirty"));
+    }, 50);
+  };
+
+  window.eliminarProveedor = function (id) {
+  Swal.fire({
+    title: "¿Eliminar proveedor?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Sí, eliminar"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const datos = proveedoresGuardados[id];
+      remove(ref(db, "proveedores/" + id)).then(() => {
+        registrarAccion("eliminó un proveedor", "proveedores", { codigo: id, ...datos });
+        Swal.fire("Eliminado", "", "success");
+      });
+    }
+  });
+};
+
+  document.getElementById("btn-pdf-proveedores").addEventListener("click", () => {
+    const doc = new window.jspdf.jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("LISTADO DE PROVEEDORES – SUPER PANDA", 20, 20);
+    doc.setFontSize(10);
+    doc.text("Fecha: " + new Date().toLocaleDateString(), 20, 28);
+
+    const rows = Object.entries(proveedoresGuardados).map(([codigo, p]) => [
+      codigo,
+      p.nombre,
+      p.nit || "-",
+      p.contacto || "-",
+      p.telefono || "-",
+      p.direccion || "-"
+    ]);
+
+    doc.autoTable({
+      head: [["Código", "Nombre", "NIT", "Contacto", "Teléfono", "Dirección"]],
+      body: rows,
+      startY: 35,
+      theme: "striped"
+    });
+
+    doc.save("proveedores_superpanda.pdf");
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inventario – Super Panda</title>
+  <link rel="stylesheet" href="css/normalize.css" />
+  <link rel="stylesheet" href="css/sweetalert2.css" />
+  <link rel="stylesheet" href="css/material.min.css" />
+  <link rel="stylesheet" href="css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="css/jquery.mCustomScrollbar.css" />
+  <link rel="stylesheet" href="css/main.css" />
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/jquery-1.11.2.min.js"><\/script>')</script>
+  <script src="js/material.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/compressorjs@1.2.1/dist/compressor.min.js"></script>
+  <script type="module">
+    let modoEdicion = false;
+    let idProductoEditado = null;
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      set,
+      get,
+      onValue
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+      const firebaseConfig = {
+    apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
+    authDomain: "superpanda-a89c0.firebaseapp.com",
+    projectId: "superpanda-a89c0",
+   storageBucket: "superpanda-a89c0.firebasestorage.app",
+    messagingSenderId: "730819312861",
+    appId: "1:730819312861:web:4a60912c859691d45a6f34"
+  };
+    import { push } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+
+    import {
+  getStorage, ref as sRef, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
+ const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
+const filtroProducto = document.getElementById("filtroProducto");
+    function registrarAccion(accion, modulo, detalles = {}) {
+  const user = auth.currentUser;
+  if (!user) return;
+  const registro = {
+    fecha: new Date().toISOString(),
+    uid: user.uid,
+    correo: user.email,
+    accion,
+    modulo,
+    detalles
+  };
+  push(ref(db, "registros"), registro);
+}
+
+   
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        Swal.fire("Sesión cerrada", "Debes iniciar sesión para acceder", "info")
+          .then(() => window.location.href = "index.html");
+      }
+    });
+    window.logout = function () {
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+    };
+
+
+
+    // Registrar producto
+    document.getElementById("btn-addProduct").addEventListener("click", async (e) => {
+  e.preventDefault();
+  const codigo = document.getElementById("productCode").value.trim();
+  const nombre = document.getElementById("productName").value.trim();
+  const cantidad = parseInt(document.getElementById("productQty").value.trim());
+  const precio = parseFloat(document.getElementById("productPrice").value.trim());
+  const proveedor = document.getElementById("productSupplier").value.trim();
+
+
+  
+
+const imagenInput = document.getElementById("productImage");
+let imagenURL = "";
+
+if (imagenInput.files.length > 0) {
+  const archivo = imagenInput.files[0];
+  const ruta = `productos/${codigo}/${archivo.name}`;
+  const storageRef = sRef(storage, ruta);
+  const snapshot = await uploadBytes(storageRef, archivo);
+  imagenURL = await getDownloadURL(snapshot.ref);
+}
+if (!codigo || !nombre || isNaN(cantidad) || isNaN(precio)) {
+    Swal.fire("Campos requeridos", "Código, nombre, cantidad y precio son obligatorios", "warning");
+    return;
+  }
+let producto = {
+  codigo,
+  nombre,
+  cantidad,
+  precio,
+  proveedor,
+  imagen: imagenURL
+};
+
+  const idFinal = modoEdicion ? idProductoEditado : codigo;
+  await set(ref(db, "productos/" + idFinal), producto);
+
+  registrarAccion(modoEdicion ? "editó un producto" : "registró un producto", "inventario", producto);
+
+  Swal.fire("Éxito", modoEdicion ? "Producto actualizado" : "Producto guardado", "success");
+  document.getElementById("form-product").reset();
+  modoEdicion = false;
+  idProductoEditado = null;
+});
+
+  
+    // Mostrar productos
+    const lista = document.getElementById("product-list");
+    let productosData = {};
+
+onValue(ref(db, "productos"), (snapshot) => {
+  productosData = snapshot.val() || {};
+  renderProductos();
+});
+
+filtroProducto.addEventListener("input", renderProductos);
+
+function renderProductos() {
+  const texto = filtroProducto.value.toLowerCase();
+  lista.innerHTML = "";
+
+  Object.entries(productosData).forEach(([id, prod]) => {
+    const nombre = prod.nombre?.toLowerCase() || "";
+    const codigo = prod.codigo?.toLowerCase() || "";
+    if (texto && !nombre.includes(texto) && !codigo.includes(texto)) return;
+
+    const item = document.createElement("div");
+    item.className = "mdl-list__item mdl-list__item--three-line";
+    item.style.position = "relative";
+    const imagenHTML = prod.imagen
+  ? `<img src="${prod.imagen}" alt="${prod.nombre}" style="width:50px;height:50px;border-radius:4px;margin-right:10px;" />`
+  : "";
+    item.innerHTML = `
+  
+      <span class="mdl-list__item-primary-content">
+          ${imagenHTML}
+        <strong>${prod.codigo}</strong>: ${prod.nombre}<br>
+        <span class="mdl-list__item-sub-title">Stock: ${prod.cantidad} | Q${prod.precio.toFixed(2)}</span>
+      </span>
+      <span class="mdl-list__item-secondary-action">
+        <button class="mdl-button mdl-js-button mdl-button--icon menu-btn" data-id="${id}">
+          <i class="zmdi zmdi-more-vert"></i>
+        </button>
+        <ul class="options-menu" data-menu style="...">
+          display: none;
+          position: absolute;
+          top: 5px;
+          right: 0;
+          background: #fff;
+          border: 1px solid #ccc;
+          border-radius: 3px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+          list-style: none;
+          padding: 5px 0;
+          z-index: 9999;
+          min-width: 120px;
+        ">
+          <li style="padding: 5px 15px;"><a href="#" class="edit-product" data-id="${id}">Editar</a></li>
+          <li style="padding: 5px 15px;"><a href="#" class="delete-product" data-id="${id}">Eliminar</a></li>
+        </ul>
+      </span>
+    `
+
+
+    
+    ;
+
+    // Mostrar/ocultar menú contextual
+    const btnMenu = item.querySelector(".menu-btn");
+    const menu = item.querySelector('[data-menu]');
+    btnMenu.addEventListener("click", (e) => {
+      e.preventDefault();
+      document.querySelectorAll(".options-menu").forEach(m => {
+        if (m !== menu) m.style.display = "none";
+      });
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    });
+
+    // Ocultar el menú al hacer clic fuera
+    document.addEventListener("click", (e) => {
+      if (!item.contains(e.target)) {
+        menu.style.display = "none";
+      }
+    });
+
+    // Eliminar producto
+    item.querySelector(".delete-product").addEventListener("click", (e) => {
+      e.preventDefault();
+      Swal.fire({
+        title: "¿Eliminar producto?",
+        text: "Esta acción no se puede deshacer",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const prod = productosData[id];
+          set(ref(db, "productos/" + id), null);
+          Swal.fire("Eliminado", "Producto eliminado correctamente", "success");
+          registrarAccion("eliminó un producto", "inventario", {
+            codigo: prod.codigo,
+            nombre: prod.nombre,
+            cantidad: prod.cantidad,
+            precio: prod.precio
+          });
+        }
+      });
+    });
+
+    // Editar producto
+    item.querySelector(".edit-product").addEventListener("click", (e) => {
+      e.preventDefault();
+      const prod = productosData[id];
+      if (!prod) return;
+
+      ["productCode", "productName", "productQty", "productPrice", "productSupplier"].forEach(id => {
+  const input = document.getElementById(id);
+  const valor =
+    id === "productQty" ? prod.cantidad :
+    id === "productPrice" ? prod.precio :
+    prod[id === "productName" ? "nombre" :
+         id === "productSupplier" ? "proveedor" : "codigo"];
+  input.value = valor || "";
+  input.parentElement.classList.add("is-dirty");
+});
+
+      modoEdicion = true;
+      idProductoEditado = id;
+
+      const tabLink = document.querySelector('[href="#tabNewProduct"]');
+      if (tabLink) tabLink.click();
+    });
+
+    lista.appendChild(item);
+  });
+}
+		
+document.getElementById("btn-pdf").addEventListener("click", () => {
+  const doc = new window.jspdf.jsPDF();
+  const logoUrl = "assets/img/logo.png";
+
+
+
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.src = logoUrl;
+
+  img.onload = () => {
+    doc.addImage(img, "PNG", 15, 10, 20, 20);
+    const fecha = new Date().toLocaleDateString();
+    doc.setFontSize(16);
+    doc.text("INVENTARIO – SUPER PANDA", 40, 20);
+    doc.setFontSize(10);
+    doc.text("Fecha: " + fecha, 40, 27);
+
+    get(ref(db, "productos")).then(async (snapshot) => {
+      const productos = snapshot.val();
+      if (!productos) {
+        Swal.fire("Nada para imprimir", "No hay productos en inventario", "info");
+        return;
+      }
+
+      const rows = [];
+      const images = [];
+
+      for (const [id, prod] of Object.entries(productos)) {
+        rows.push([
+          prod.codigo || id,
+          prod.nombre || "",
+          prod.cantidad || 0,
+          "Q" + (prod.precio || 0).toFixed(2),
+          prod.proveedor || ""
+        ]);
+
+      doc.autoTable({
+        startY: 35,
+        head: [["Código", "Nombre", "Cantidad", "Precio", "Proveedor"]],
+        body: rows,
+        theme: "striped",
+        headStyles: { fillColor: [41, 128, 185] },
+        styles: { fontSize: 9, cellPadding: 3 },
+        columnStyles: {
+          0: { cellWidth: 16 }, // ancho para miniatura
+        },
+     
+          }
+      
+      );
+
+
+  /*    
+function getImageTypeFromURL(url) {
+  const ext = url.split('.').pop().toLowerCase();
+  if (ext === 'png') return 'PNG';
+  if (ext === 'jpg' || ext === 'jpeg') return 'JPEG';
+  if (ext === 'webp') return 'WEBP';
+  if (ext === 'gif') return 'GIF'; // jsPDF no soporta GIF directamente
+  return 'JPEG'; // fallback
+}
+
+for (const [id, prod] of Object.entries(productos)) {
+
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+    img.src = prod.imagen;
+
+  await new Promise(resolve => img.onload = resolve);
+
+  const tipo = getImageTypeFromURL(prod.imagen);
+  doc.addImage(img, tipo, x, y, width, height);
+  }
+*/
+
+
+
+      doc.save("inventario_superpanda.pdf");
+    }});
+  };
+});
+
+  </script>
+</head>
+<body>
+	<div class="full-width navBar">
+    <div class="full-width navBar-options">
+      <i class="zmdi zmdi-more-vert btn-menu" id="btn-menu"></i>
+      <div class="mdl-tooltip" for="btn-menu">Menú</div>
+      <nav class="navBar-options-list">
+        <ul class="list-unstyle">
+          <li class="btn-exit" onclick="logout()">
+            <i class="zmdi zmdi-power"></i>
+            <div class="mdl-tooltip" for="btn-exit">Cerrar sesión</div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+  <!-- Aquí podrías insertar tu barra lateral si la tienes como componente -->
+
+  <section class="full-width navLateral">
+    <div class="full-width navLateral-bg btn-menu"></div>
+    <div class="full-width navLateral-body">
+      <div class="full-width navLateral-body-logo text-center tittles">
+        <i class="zmdi zmdi-close btn-menu"></i> SUPER PANDA
+      </div>
+      <figure class="full-width" style="height: 77px;">
+        <div class="navLateral-body-cl">
+<img src="assets/img/logo.png" ... />  </div>
+        <figcaption class="navLateral-body-cr hide-on-tablet">
+          <span>
+            <br />
+            <small></small>
+          </span>
+        </figcaption>
+      </figure>
+      <div class="full-width tittles navLateral-body-tittle-menu">
+        <i class="zmdi zmdi-desktop-mac"></i><span class="hide-on-tablet"> MENÚ</span>
+      </div>
+      <nav class="full-width">
+        <ul class="full-width list-unstyle menu-principal">
+          <li><a href="home.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-view-dashboard"></i></div><div class="navLateral-body-cr hide-on-tablet">Inicio</div></a></li>
+          <li><a href="inventory.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-store"></i></div><div class="navLateral-body-cr hide-on-tablet">Inventario</div></a></li>
+          <li><a href="client.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-accounts"></i></div><div class="navLateral-body-cr hide-on-tablet">Clientes</div></a></li>
+          <li><a href="sales.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-basket"></i></div><div class="navLateral-body-cr hide-on-tablet">Compras</div></a></li>
+          <li><a href="providers.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-truck"></i></div><div class="navLateral-body-cr hide-on-tablet">Proveedores</div></a></li>
+          <li><a href="ventas.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div><div class="navLateral-body-cr hide-on-tablet">Ventas</div></a></li>
+          <li><a href="cuentas-cobrar.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div><div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div></a></li>
+        <li><a href="generar_xls.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div><div class="navLateral-body-cr hide-on-tablet">Generar XLS</div></a></li>
+          <li><a href="envio.html" class="full-width active"><div class="navLateral-body-cl"><i class="zmdi zmdi-local-shipping"></i></div><div class="navLateral-body-cr hide-on-tablet">Guía / Nota de envío</div></a></li>
+
+        </ul>
+      </nav>
+    </div>
+  </section>
+  <!-- Contenido -->
+  <section class="full-width pageContent">
+    <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+      <div class="mdl-tabs__tab-bar">
+        <a href="#tabNewProduct" class="mdl-tabs__tab is-active">Nuevo producto</a>
+        <a href="#tabListProduct" class="mdl-tabs__tab">Inventario</a>
+      </div>
+      <!-- Formulario -->
+      <div class="mdl-tabs__panel is-active" id="tabNewProduct">
+        <div class="mdl-grid">
+          <div class="mdl-cell mdl-cell--6-col mdl-cell--3-offset-desktop">
+            <div class="full-width panel mdl-shadow--2dp">
+              <div class="full-width panel-tittle bg-primary text-center tittles">Registrar producto</div>
+              <div class="full-width panel-content">
+                <form id="form-product">
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="productCode" />
+                    <label class="mdl-textfield__label" for="productCode">Código</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="productName" />
+                    <label class="mdl-textfield__label" for="productName">Nombre</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="number" id="productQty" />
+                    <label class="mdl-textfield__label" for="productQty">Cantidad</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="number" step="0.01" id="productPrice" />
+                    <label class="mdl-textfield__label" for="productPrice">Precio Costo</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="productSupplier" />
+                    <label class="mdl-textfield__label" for="productSupplier">Proveedor</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <input type="file" id="productImage" accept="image/*" />
+  <label class="mdl-textfield__label" for="productImage">Imagen del producto</label>
+</div>
+                  <p class="text-center">
+                    <button id="btn-addProduct" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
+                      Guardar
+                    </button>
+                  </p>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+	
+      <!-- Listado -->
+      <div class="mdl-tabs__panel" id="tabListProduct">
+        <div class="mdl-grid">
+          <div class="mdl-cell mdl-cell--10-col mdl-cell--1-offset-desktop">
+            <div class="full-width panel mdl-shadow--2dp">
+              <div class="full-width panel-tittle bg-success text-center tittles">Inventario actual</div>
+              <div class="full-width panel-content">
+                <div style="margin-bottom: 10px; text-align:right;">
+                <input type="text" id="filtroProducto" placeholder="Buscar producto..." class="mdl-textfield__input" style="width: 300px; padding: 8px;" />
+                </div>
+                <div class="mdl-list" id="product-list">
+					
+                  <!-- Productos se insertan aquí dinámicamente -->
+				   
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> <!-- cierra listado -->
+    </div> <!-- cierra tabs -->
+	<p class="text-center">
+  	<button id="btn-pdf" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+    <i class="zmdi zmdi-print"></i> Imprimir Inventario
+	</button>
+	</p>
+  </section>
+</body>
+</html>

@@ -168,7 +168,7 @@ function renderProductos() {
         <button class="mdl-button mdl-js-button mdl-button--icon menu-btn" data-id="${id}">
           <i class="zmdi zmdi-more-vert"></i>
         </button>
-        <ul class="options-menu" id="menu-${id}" style="
+        <ul class="options-menu" data-menu style="...">
           display: none;
           position: absolute;
           top: 5px;
@@ -194,7 +194,8 @@ function renderProductos() {
 
     // Mostrar/ocultar menú contextual
     const btnMenu = item.querySelector(".menu-btn");
-    const menu = item.querySelector(`#menu-${id}`);
+  const menu = item.querySelector('[data-menu]');
+
     btnMenu.addEventListener("click", (e) => {
       e.preventDefault();
       document.querySelectorAll(".options-menu").forEach(m => {

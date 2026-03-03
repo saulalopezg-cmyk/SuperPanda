@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Inventario – Super Panda</title>
+  <title>Inventario – Super Panda 19 CALLE</title>
   <link rel="stylesheet" href="css/normalize.css" />
   <link rel="stylesheet" href="css/sweetalert2.css" />
   <link rel="stylesheet" href="css/material.min.css" />
@@ -64,7 +64,7 @@ const filtroProducto = document.getElementById("filtroProducto");
     modulo,
     detalles
   };
-  push(ref(db, "registros_19calle"), registro);
+  push(ref(db, "registros"), registro);
 }
 
    
@@ -101,7 +101,7 @@ let imagenURL = "";
 
 if (imagenInput.files.length > 0) {
   const archivo = imagenInput.files[0];
-  const ruta = `productos/${codigo}/${archivo.name}`;
+  const ruta = `productos_19calle/${codigo}/${archivo.name}`;
   const storageRef = sRef(storage, ruta);
   const snapshot = await uploadBytes(storageRef, archivo);
   imagenURL = await getDownloadURL(snapshot.ref);
@@ -157,45 +157,46 @@ function renderProductos() {
     const imagenHTML = prod.imagen
   ? `<img src="${prod.imagen}" alt="${prod.nombre}" style="width:50px;height:50px;border-radius:4px;margin-right:10px;" />`
   : "";
-    item.innerHTML = `
   
-      <span class="mdl-list__item-primary-content">
-          ${imagenHTML}
-        <strong>${prod.codigo}</strong>: ${prod.nombre}<br>
-        <span class="mdl-list__item-sub-title">Stock: ${prod.cantidad} | Q${prod.precio.toFixed(2)}</span>
-      </span>
-      <span class="mdl-list__item-secondary-action">
-        <button class="mdl-button mdl-js-button mdl-button--icon menu-btn" data-id="${id}">
-          <i class="zmdi zmdi-more-vert"></i>
-        </button>
-        <ul class="options-menu" data-menu style="...">
-          display: none;
-          position: absolute;
-          top: 5px;
-          right: 0;
-          background: #fff;
-          border: 1px solid #ccc;
-          border-radius: 3px;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-          list-style: none;
-          padding: 5px 0;
-          z-index: 9999;
-          min-width: 120px;
-        ">
-          <li style="padding: 5px 15px;"><a href="#" class="edit-product" data-id="${id}">Editar</a></li>
-          <li style="padding: 5px 15px;"><a href="#" class="delete-product" data-id="${id}">Eliminar</a></li>
-        </ul>
-      </span>
-    `
+item.innerHTML = `
+  <span class="mdl-list__item-primary-content">
+    ${imagenHTML}
+    <strong>${prod.codigo}</strong>: ${prod.nombre}<br>
+    <span class="mdl-list__item-sub-title">Stock: ${prod.cantidad} | Q${prod.precio.toFixed(2)}</span>
+  </span>
 
+  <span class="mdl-list__item-secondary-action">
+    <button class="mdl-button mdl-js-button mdl-button--icon menu-btn" data-id="${id}">
+      <i class="zmdi zmdi-more-vert"></i>
+    </button>
 
-    
-    ;
+    <ul class="options-menu" data-menu style="
+      display: none;
+      position: absolute;
+      top: 5px;
+      right: 0;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      list-style: none;
+      padding: 5px 0;
+      z-index: 9999;
+      min-width: 120px;
+    ">
+      <li style="padding: 5px 15px;">
+        <a href="#" class="edit-product" data-id="${id}">Editar</a>
+      </li>
+      <li style="padding: 5px 15px;">
+        <a href="#" class="delete-product" data-id="${id}">Eliminar</a>
+      </li>
+    </ul>
+  </span>
+`;
 
     // Mostrar/ocultar menú contextual
     const btnMenu = item.querySelector(".menu-btn");
-  const menu = item.querySelector('[data-menu]');
-
+    const menu = item.querySelector('[data-menu]');
     btnMenu.addEventListener("click", (e) => {
       e.preventDefault();
       document.querySelectorAll(".options-menu").forEach(m => {
@@ -268,8 +269,6 @@ document.getElementById("btn-pdf").addEventListener("click", () => {
   const doc = new window.jspdf.jsPDF();
   const logoUrl = "assets/img/logo.png";
 
-
-
   const img = new Image();
   img.crossOrigin = "anonymous";
   img.src = logoUrl;
@@ -278,28 +277,24 @@ document.getElementById("btn-pdf").addEventListener("click", () => {
     doc.addImage(img, "PNG", 15, 10, 20, 20);
     const fecha = new Date().toLocaleDateString();
     doc.setFontSize(16);
-    doc.text("INVENTARIO – SUPER PANDA 19 CALLE", 40, 20);
+    doc.text("INVENTARIO 19 CALLE – SUPER PANDA", 40, 20);
     doc.setFontSize(10);
     doc.text("Fecha: " + fecha, 40, 27);
 
-    get(ref(db, "productos_19calle")).then(async (snapshot) => {
+    get(ref(db, "productos_19calle")).then((snapshot) => {
       const productos = snapshot.val();
       if (!productos) {
         Swal.fire("Nada para imprimir", "No hay productos en inventario", "info");
         return;
       }
 
-      const rows = [];
-      const images = [];
-
-      for (const [id, prod] of Object.entries(productos)) {
-        rows.push([
-          prod.codigo || id,
-          prod.nombre || "",
-          prod.cantidad || 0,
-          "Q" + (prod.precio || 0).toFixed(2),
-          prod.proveedor || ""
-        ]);
+      const rows = Object.entries(productos).map(([id, prod]) => ([
+        prod.codigo || id,
+        prod.nombre || "",
+        prod.cantidad || 0,
+        "Q" + (Number(prod.precio || 0)).toFixed(2),
+        prod.proveedor || ""
+      ]));
 
       doc.autoTable({
         startY: 35,
@@ -307,43 +302,15 @@ document.getElementById("btn-pdf").addEventListener("click", () => {
         body: rows,
         theme: "striped",
         headStyles: { fillColor: [41, 128, 185] },
-        styles: { fontSize: 9, cellPadding: 3 },
-        columnStyles: {
-          0: { cellWidth: 16 }, // ancho para miniatura
-        },
-     
-          }
-      
-      );
+        styles: { fontSize: 9, cellPadding: 3 }
+      });
 
+      doc.save("inventario_superpanda19calle.pdf"); // ✅ SOLO AQUÍ
+    });
+  };
 
-  /*    
-function getImageTypeFromURL(url) {
-  const ext = url.split('.').pop().toLowerCase();
-  if (ext === 'png') return 'PNG';
-  if (ext === 'jpg' || ext === 'jpeg') return 'JPEG';
-  if (ext === 'webp') return 'WEBP';
-  if (ext === 'gif') return 'GIF'; // jsPDF no soporta GIF directamente
-  return 'JPEG'; // fallback
-}
-
-for (const [id, prod] of Object.entries(productos)) {
-
-  const img = new Image();
-  img.crossOrigin = "anonymous";
-    img.src = prod.imagen;
-
-  await new Promise(resolve => img.onload = resolve);
-
-  const tipo = getImageTypeFromURL(prod.imagen);
-  doc.addImage(img, tipo, x, y, width, height);
-  }
-*/
-
-
-
-      doc.save("inventario_superpanda_19calle.pdf");
-    }});
+  img.onerror = () => {
+    Swal.fire("Error", "No se pudo cargar el logo para el PDF", "error");
   };
 });
 
@@ -370,7 +337,7 @@ for (const [id, prod] of Object.entries(productos)) {
     <div class="full-width navLateral-bg btn-menu"></div>
     <div class="full-width navLateral-body">
       <div class="full-width navLateral-body-logo text-center tittles">
-        <i class="zmdi zmdi-close btn-menu"></i> SUPER PANDA 19 CALLE
+        <i class="zmdi zmdi-close btn-menu"></i> SUPER PANDA
       </div>
       <figure class="full-width" style="height: 77px;">
         <div class="navLateral-body-cl">
@@ -395,7 +362,7 @@ for (const [id, prod] of Object.entries(productos)) {
           <li><a href="ventas_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div><div class="navLateral-body-cr hide-on-tablet">Ventas</div></a></li>
           <li><a href="cuentas-cobrar_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div><div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div></a></li>
         <li><a href="generar_xls_19calle.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div><div class="navLateral-body-cr hide-on-tablet">Generar XLS</div></a></li>
-            <li><a href="envio_19calle.html" class="full-width active"><div class="navLateral-body-cl"><i class="zmdi zmdi-local-shipping"></i></div><div class="navLateral-body-cr hide-on-tablet">Guía / Nota de envío</div></a></li>
+          <li><a href="envio_19calle.html" class="full-width active"><div class="navLateral-body-cl"><i class="zmdi zmdi-local-shipping"></i></div><div class="navLateral-body-cr hide-on-tablet">Guía / Nota de envío</div></a></li>
 
         </ul>
       </nav>

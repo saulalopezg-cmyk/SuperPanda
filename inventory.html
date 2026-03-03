@@ -157,40 +157,42 @@ function renderProductos() {
     const imagenHTML = prod.imagen
   ? `<img src="${prod.imagen}" alt="${prod.nombre}" style="width:50px;height:50px;border-radius:4px;margin-right:10px;" />`
   : "";
-    item.innerHTML = `
   
-      <span class="mdl-list__item-primary-content">
-          ${imagenHTML}
-        <strong>${prod.codigo}</strong>: ${prod.nombre}<br>
-        <span class="mdl-list__item-sub-title">Stock: ${prod.cantidad} | Q${prod.precio.toFixed(2)}</span>
-      </span>
-      <span class="mdl-list__item-secondary-action">
-        <button class="mdl-button mdl-js-button mdl-button--icon menu-btn" data-id="${id}">
-          <i class="zmdi zmdi-more-vert"></i>
-        </button>
-        <ul class="options-menu" data-menu style="...">
-          display: none;
-          position: absolute;
-          top: 5px;
-          right: 0;
-          background: #fff;
-          border: 1px solid #ccc;
-          border-radius: 3px;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-          list-style: none;
-          padding: 5px 0;
-          z-index: 9999;
-          min-width: 120px;
-        ">
-          <li style="padding: 5px 15px;"><a href="#" class="edit-product" data-id="${id}">Editar</a></li>
-          <li style="padding: 5px 15px;"><a href="#" class="delete-product" data-id="${id}">Eliminar</a></li>
-        </ul>
-      </span>
-    `
+item.innerHTML = `
+  <span class="mdl-list__item-primary-content">
+    ${imagenHTML}
+    <strong>${prod.codigo}</strong>: ${prod.nombre}<br>
+    <span class="mdl-list__item-sub-title">Stock: ${prod.cantidad} | Q${prod.precio.toFixed(2)}</span>
+  </span>
 
+  <span class="mdl-list__item-secondary-action">
+    <button class="mdl-button mdl-js-button mdl-button--icon menu-btn" data-id="${id}">
+      <i class="zmdi zmdi-more-vert"></i>
+    </button>
 
-    
-    ;
+    <ul class="options-menu" data-menu style="
+      display: none;
+      position: absolute;
+      top: 5px;
+      right: 0;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      list-style: none;
+      padding: 5px 0;
+      z-index: 9999;
+      min-width: 120px;
+    ">
+      <li style="padding: 5px 15px;">
+        <a href="#" class="edit-product" data-id="${id}">Editar</a>
+      </li>
+      <li style="padding: 5px 15px;">
+        <a href="#" class="delete-product" data-id="${id}">Eliminar</a>
+      </li>
+    </ul>
+  </span>
+`;
 
     // Mostrar/ocultar menú contextual
     const btnMenu = item.querySelector(".menu-btn");
@@ -267,8 +269,6 @@ document.getElementById("btn-pdf").addEventListener("click", () => {
   const doc = new window.jspdf.jsPDF();
   const logoUrl = "assets/img/logo.png";
 
-
-
   const img = new Image();
   img.crossOrigin = "anonymous";
   img.src = logoUrl;
@@ -281,24 +281,20 @@ document.getElementById("btn-pdf").addEventListener("click", () => {
     doc.setFontSize(10);
     doc.text("Fecha: " + fecha, 40, 27);
 
-    get(ref(db, "productos")).then(async (snapshot) => {
+    get(ref(db, "productos")).then((snapshot) => {
       const productos = snapshot.val();
       if (!productos) {
         Swal.fire("Nada para imprimir", "No hay productos en inventario", "info");
         return;
       }
 
-      const rows = [];
-      const images = [];
-
-      for (const [id, prod] of Object.entries(productos)) {
-        rows.push([
-          prod.codigo || id,
-          prod.nombre || "",
-          prod.cantidad || 0,
-          "Q" + (prod.precio || 0).toFixed(2),
-          prod.proveedor || ""
-        ]);
+      const rows = Object.entries(productos).map(([id, prod]) => ([
+        prod.codigo || id,
+        prod.nombre || "",
+        prod.cantidad || 0,
+        "Q" + (Number(prod.precio || 0)).toFixed(2),
+        prod.proveedor || ""
+      ]));
 
       doc.autoTable({
         startY: 35,
@@ -306,43 +302,15 @@ document.getElementById("btn-pdf").addEventListener("click", () => {
         body: rows,
         theme: "striped",
         headStyles: { fillColor: [41, 128, 185] },
-        styles: { fontSize: 9, cellPadding: 3 },
-        columnStyles: {
-          0: { cellWidth: 16 }, // ancho para miniatura
-        },
-     
-          }
-      
-      );
+        styles: { fontSize: 9, cellPadding: 3 }
+      });
 
+      doc.save("inventario_superpanda.pdf"); // ✅ SOLO AQUÍ
+    });
+  };
 
-  /*    
-function getImageTypeFromURL(url) {
-  const ext = url.split('.').pop().toLowerCase();
-  if (ext === 'png') return 'PNG';
-  if (ext === 'jpg' || ext === 'jpeg') return 'JPEG';
-  if (ext === 'webp') return 'WEBP';
-  if (ext === 'gif') return 'GIF'; // jsPDF no soporta GIF directamente
-  return 'JPEG'; // fallback
-}
-
-for (const [id, prod] of Object.entries(productos)) {
-
-  const img = new Image();
-  img.crossOrigin = "anonymous";
-    img.src = prod.imagen;
-
-  await new Promise(resolve => img.onload = resolve);
-
-  const tipo = getImageTypeFromURL(prod.imagen);
-  doc.addImage(img, tipo, x, y, width, height);
-  }
-*/
-
-
-
-      doc.save("inventario_superpanda.pdf");
-    }});
+  img.onerror = () => {
+    Swal.fire("Error", "No se pudo cargar el logo para el PDF", "error");
   };
 });
 

@@ -268,26 +268,26 @@ const listaClientes  = document.getElementById("clientesLista");
     const r = radiosModo.find(r => r.checked);
     return r ? r.value : "unitarios";
   }
-function obtenerPrecioProducto(prod, modo) {
 
+
+  function obtenerPrecioProducto(prod, modo) {
   switch (modo) {
 
     case "mayorista":
-      return leerNumero(prod.precioMayorista);
+      return leerNumero(prod.precioMayorista) || 0;
 
     case "docenas":
-      return leerNumero(prod.precioDocena);
+      return leerNumero(prod.precioDocena) || 0;
 
     case "unitarios":
-      return leerNumero(prod.precioUnitario);
+      return leerNumero(prod.precioSugerido) || 0;
 
     case "polo":
-      return leerNumero(prod.precioPolo);
+      return leerNumero(prod.precioPolo) || 0;
 
     default:
-      return 0;
+      return leerNumero(prod.precioSugerido) || 0;
   }
-
 }
 
   window.addEventListener("DOMContentLoaded", () => {

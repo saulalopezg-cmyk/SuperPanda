@@ -143,7 +143,7 @@ if (imagenInput.files.length > 0) {
   const snapshot = await uploadBytes(storageRef, archivo);
   imagenURL = await getDownloadURL(snapshot.ref);
 }
-if (!codigo || !nombre || isNaN(cantidad) || isNaN(precio)) {
+if (!codigo || !nombre || isNaN(cantidad) || isNaN(precioSugerido)) {
     Swal.fire("Campos requeridos", "Código, nombre, cantidad y precio son obligatorios", "warning");
     return;
   }
@@ -288,28 +288,36 @@ Talla: ${prod.talla || "-"} | Color: ${prod.color || "-"}
     });
 
     // Editar producto
+  
     item.querySelector(".edit-product").addEventListener("click", (e) => {
-      e.preventDefault();
-      const prod = productosData[id];
-      if (!prod) return;
+  e.preventDefault();
 
-      ["productCode", "productName", "productQty", "productPrice", "productSupplier"].forEach(id => {
-  const input = document.getElementById(id);
-  const valor =
-    id === "productQty" ? prod.cantidad :
-    id === "productPrice" ? prod.precio :
-    prod[id === "productName" ? "nombre" :
-         id === "productSupplier" ? "proveedor" : "codigo"];
-  input.value = valor || "";
-  input.parentElement.classList.add("is-dirty");
+  const prod = productosData[id];
+  if (!prod) return;
+
+  document.getElementById("productCode").value = prod.codigo || "";
+  document.getElementById("productName").value = prod.nombre || "";
+  document.getElementById("productQty").value = prod.cantidad || "";
+  document.getElementById("productSuggestedPrice").value = prod.precioSugerido || "";
+  document.getElementById("productDozenPrice").value = prod.precioDocena || "";
+  document.getElementById("productWholesalePrice").value = prod.precioMayorista || "";
+  document.getElementById("productPoloPrice").value = prod.precioPolo || "";
+  document.getElementById("productSize").value = prod.talla || "";
+  document.getElementById("productColor").value = prod.color || "";
+  document.getElementById("productSupplier").value = prod.proveedor || "";
+
+  document.querySelectorAll(".mdl-textfield").forEach(campo => {
+    campo.classList.add("is-dirty");
+  });
+
+  modoEdicion = true;
+  idProductoEditado = id;
+
+  document.getElementById("btn-addProduct").innerText = "Actualizar producto";
+
+  const tabLink = document.querySelector('[href="#tabNewProduct"]');
+  if (tabLink) tabLink.click();
 });
-
-      modoEdicion = true;
-      idProductoEditado = id;
-
-      const tabLink = document.querySelector('[href="#tabNewProduct"]');
-      if (tabLink) tabLink.click();
-    });
 
     lista.appendChild(item);
   });

@@ -77,6 +77,7 @@
   <div class="mdl-tabs__tab-bar">
     <a href="#tabRegistrarCxc" class="mdl-tabs__tab is-active">Registrar cuenta</a>
     <a href="#tabListaCxc" class="mdl-tabs__tab">Historial</a>
+    <a href="#tabResumenClientes" class="mdl-tabs__tab">Resumen por cliente</a>
     
   </div>
 
@@ -143,6 +144,43 @@
     </div>
   </div>
 </div>
+
+<div class="mdl-tabs__panel" id="tabResumenClientes">
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--10-col mdl-cell--1-offset-desktop">
+      <div class="full-width panel mdl-shadow--2dp">
+        <div class="full-width panel-tittle bg-primary text-center tittles">
+          Total pendiente por cliente
+        </div>
+
+        <div class="full-width panel-content">
+          <div class="text-right" style="margin-bottom:15px;">
+            <input
+              type="text"
+              id="filtroResumenCliente"
+              class="mdl-textfield__input"
+              placeholder="Buscar cliente..."
+              style="width:30%;"
+            />
+          </div>
+
+          <table class="mdl-data-table mdl-js-data-table full-width">
+            <thead>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Cliente</th>
+                <th>Total Ventas</th>
+                <th>Total Abonado</th>
+                <th>Total Pendiente</th>
+              </tr>
+            </thead>
+            <tbody id="tablaResumenClientes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
   </section>
 
   <script type="module">
@@ -203,14 +241,14 @@ window.logout = function () {
       .forEach(el => el.innerHTML = spanInfo);
 
     // 🔒 Restricción para vendedores
-    if (rolUsuario === "vendedor") {
-      // Ocultar pestaña historial
-      document.querySelector('a[href="#tabListaCxc"]').style.display = "none";
+   if (rolUsuario === "vendedor") {
+  document.querySelector('a[href="#tabListaCxc"]').style.display = "none";
+  document.querySelector('a[href="#tabResumenClientes"]').style.display = "none";
 
-      // Forzar que solo vea la pestaña de registro
-      document.querySelector('#tabRegistrarCxc').classList.add("is-active");
-      document.querySelector('#tabListaCxc').classList.remove("is-active");
-    }
+  document.querySelector('#tabRegistrarCxc').classList.add("is-active");
+  document.querySelector('#tabListaCxc').classList.remove("is-active");
+  document.querySelector('#tabResumenClientes').classList.remove("is-active");
+}
   });
 });
 
@@ -320,6 +358,7 @@ onValue(ref(db, "cuentasPorCobrar"), snap => {
   renderCuentas();
 });
 
+
 function renderCuentas() {
   listaCuentas.innerHTML = "";
   const texto = filtroCli.value.trim().toLowerCase();
@@ -328,29 +367,91 @@ function renderCuentas() {
   Object.entries(cuentas).forEach(([id, c]) => {
     if (estado && c.estado !== estado) return;
 
-    get(ref(db, "clientes/" + c.cliente)).then(snap => {
-    
-      const cli = snap.val() || {};
-    c.clienteData = cli;
-      const nombre = `${cli.nombre || ""} ${cli.apellido || ""}`.trim();
-      if (!nombre.toLowerCase().includes(texto)) return;
-         c.clienteData = cli; // Guardamos el nombre del cliente en la cuenta
-      const li = document.createElement("li");
-      li.className = "mdl-list__item";
-      li.innerHTML = `
-        <span class="mdl-list__item-primary-content">
-          <strong>${nombre}</strong> – Venta ${c.codigoVenta}
-          <br>Fecha: ${c.fechaVenta} – Saldo: Q${c.saldo.toFixed(2)} (${c.estado})
+    const cli = clientesCache[c.cliente] || {};
+const nombre = cli.nombre
+  ? `${cli.nombre || ""} ${cli.apellido || ""}`.trim()
+  : c.cliente || "Cliente sin nombre";
+
+    if (!nombre.toLowerCase().includes(texto)) return;
+
+    const li = document.createElement("li");
+    li.className = "mdl-list__item mdl-list__item--three-line";
+
+    li.innerHTML = `
+      <span class="mdl-list__item-primary-content">
+        <strong>Cliente:</strong> ${nombre}<br>
+        <span class="mdl-list__item-sub-title">
+          Venta: ${c.codigoVenta} |
+          Fecha: ${c.fechaVenta} |
+          Total: Q${c.total.toFixed(2)} |
+          Abonado: Q${c.abonado.toFixed(2)} |
+          Saldo: Q${c.saldo.toFixed(2)} |
+          Estado: ${c.estado}
         </span>
-        <span class="mdl-list__item-secondary-action">
-          <button onclick="abonar('${id}')">💰</button>
-          <button onclick="imprimir('${id}')">🖨️</button>
-          <button onclick="historial('${c.cliente}')">📚</button>
-        </span>`;
-      listaCuentas.appendChild(li);
-    });
+      </span>
+
+      <span class="mdl-list__item-secondary-action">
+        <button onclick="abonar('${id}')">💰</button>
+        <button onclick="imprimir('${id}')">🖨️</button>
+        <button onclick="historial('${c.cliente}')">📚</button>
+      </span>
+    `;
+
+    listaCuentas.appendChild(li);
   });
+
+  renderResumenClientes();
 }
+
+const filtroResumenCliente = document.getElementById("filtroResumenCliente");
+const tablaResumenClientes = document.getElementById("tablaResumenClientes");
+
+function renderResumenClientes() {
+  if (!tablaResumenClientes) return;
+
+  const texto = (filtroResumenCliente?.value || "").trim().toLowerCase();
+  tablaResumenClientes.innerHTML = "";
+
+  const resumen = {};
+
+  Object.values(cuentas).forEach(c => {
+    const cli = clientesCache[c.cliente] || {};
+const nombre = cli.nombre
+  ? `${cli.nombre || ""} ${cli.apellido || ""}`.trim()
+  : c.cliente || "Cliente sin nombre";
+    if (!nombre) return;
+
+    if (!resumen[c.cliente]) {
+      resumen[c.cliente] = {
+        nombre,
+        total: 0,
+        abonado: 0,
+        saldo: 0
+      };
+    }
+
+    resumen[c.cliente].total += Number(c.total || 0);
+    resumen[c.cliente].abonado += Number(c.abonado || 0);
+    resumen[c.cliente].saldo += Number(c.saldo || 0);
+  });
+
+  Object.values(resumen)
+    .filter(c => c.nombre.toLowerCase().includes(texto))
+    .sort((a, b) => b.saldo - a.saldo)
+    .forEach(c => {
+      tablaResumenClientes.innerHTML += `
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric">${c.nombre}</td>
+          <td>Q${c.total.toFixed(2)}</td>
+          <td>Q${c.abonado.toFixed(2)}</td>
+          <td><strong>Q${c.saldo.toFixed(2)}</strong></td>
+        </tr>
+      `;
+    });
+}
+
+filtroResumenCliente?.addEventListener("input", renderResumenClientes);
+
 
 filtroCli.addEventListener("input", renderCuentas);
 filtroEstado.addEventListener("change", renderCuentas);

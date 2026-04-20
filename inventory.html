@@ -22,6 +22,8 @@
   <script type="module">
     let modoEdicion = false;
     let idProductoEditado = null;
+    let rolUsuario = "";
+
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
     import {
@@ -53,6 +55,8 @@
  const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 const filtroProducto = document.getElementById("filtroProducto");
+
+
     function registrarAccion(accion, modulo, detalles = {}) {
   const user = auth.currentUser;
   if (!user) return;
@@ -70,6 +74,36 @@ const filtroProducto = document.getElementById("filtroProducto");
    
     const auth = getAuth(app);
     const db = getDatabase(app);
+
+    window.logout = function () {
+    signOut(auth).then(() => window.location.href = "index.html");
+  };
+  onAuthStateChanged(auth, user => {
+    if (!user) return window.location.href = "index.html";
+
+    get(ref(db, "usuarios/" + user.uid)).then(snap => {
+  const datos = snap.val() || {};
+
+  rolUsuario = datos.rol || "";
+
+  const spanInfo = `${user.email}<br><small>${rolUsuario}</small>`;
+  document.querySelectorAll(".navLateral-body-cr span")
+    .forEach(el => el.innerHTML = spanInfo);
+
+  // 🔒 Restricción para vendedor
+  if (rolUsuario === "vendedor") {
+    document.querySelector('a[href="#tabNewProduct"]').style.display = "none";
+
+    document.querySelector('#tabListProduct').classList.add("is-active");
+    document.querySelector('#tabNewProduct').classList.remove("is-active");
+  }
+});
+
+
+
+      const spanInfo = `${user.email}<br><small>${datos.rol || ""}</small>`;
+      document.querySelectorAll(".navLateral-body-cr span").forEach(el => el.innerHTML = spanInfo);
+    });
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         Swal.fire("Sesión cerrada", "Debes iniciar sesión para acceder", "info")
@@ -90,7 +124,12 @@ const filtroProducto = document.getElementById("filtroProducto");
   const codigo = document.getElementById("productCode").value.trim();
   const nombre = document.getElementById("productName").value.trim();
   const cantidad = parseInt(document.getElementById("productQty").value.trim());
-  const precio = parseFloat(document.getElementById("productPrice").value.trim());
+  const precioSugerido = parseFloat(document.getElementById("productSuggestedPrice").value.trim());
+const precioDocena = parseFloat(document.getElementById("productDozenPrice").value.trim());
+const precioMayorista = parseFloat(document.getElementById("productWholesalePrice").value.trim());
+const precioPolo = parseFloat(document.getElementById("productPoloPrice").value.trim());
+const talla = document.getElementById("productSize").value.trim();
+const color = document.getElementById("productColor").value.trim();
   const proveedor = document.getElementById("productSupplier").value.trim();
 
 
@@ -114,10 +153,16 @@ let producto = {
   codigo,
   nombre,
   cantidad,
-  precio,
   proveedor,
+  talla,
+  color,
+  precioSugerido,
+  precioDocena,
+  precioMayorista,
+  precioPolo,
   imagen: imagenURL
 };
+
 
   const idFinal = modoEdicion ? idProductoEditado : codigo;
   await set(ref(db, "productos/" + idFinal), producto);
@@ -162,8 +207,15 @@ item.innerHTML = `
   <span class="mdl-list__item-primary-content">
     ${imagenHTML}
     <strong>${prod.codigo}</strong>: ${prod.nombre}<br>
-    <span class="mdl-list__item-sub-title">Stock: ${prod.cantidad} | Q${prod.precio.toFixed(2)}</span>
-  </span>
+    <span class="mdl-list__item-sub-title">
+Stock: ${prod.cantidad} |
+Sugerido: Q${(prod.precioSugerido || 0).toFixed(2)} |
+Docena: Q${(prod.precioDocena || 0).toFixed(2)} |
+Mayorista: Q${(prod.precioMayorista || 0).toFixed(2)}
+<br>
+Talla: ${prod.talla || "-"} | Color: ${prod.color || "-"}
+</span>
+
 
   <span class="mdl-list__item-secondary-action">
     <button class="mdl-button mdl-js-button mdl-button--icon menu-btn" data-id="${id}">
@@ -292,7 +344,7 @@ document.getElementById("btn-pdf").addEventListener("click", () => {
         prod.codigo || id,
         prod.nombre || "",
         prod.cantidad || 0,
-        "Q" + (Number(prod.precio || 0)).toFixed(2),
+       "Q" + (Number(prod.precioSugerido || 0)).toFixed(2),
         prod.proveedor || ""
       ]));
 
@@ -359,6 +411,7 @@ document.getElementById("btn-pdf").addEventListener("click", () => {
           <li><a href="client.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-accounts"></i></div><div class="navLateral-body-cr hide-on-tablet">Clientes</div></a></li>
           <li><a href="sales.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-basket"></i></div><div class="navLateral-body-cr hide-on-tablet">Compras</div></a></li>
           <li><a href="providers.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-truck"></i></div><div class="navLateral-body-cr hide-on-tablet">Proveedores</div></a></li>
+          <li><a href="dashboard.html" class="full-width active"><div class="navLateral-body-cl"><i class="zmdi zmdi-chart"></i></div><div class="navLateral-body-cr hide-on-tablet">Dashboard</div></a></li>
           <li><a href="ventas.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div><div class="navLateral-body-cr hide-on-tablet">Ventas</div></a></li>
           <li><a href="cuentas-cobrar.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div><div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div></a></li>
         <li><a href="generar_xls.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div><div class="navLateral-body-cr hide-on-tablet">Generar XLS</div></a></li>
@@ -396,9 +449,35 @@ document.getElementById("btn-pdf").addEventListener("click", () => {
                     <label class="mdl-textfield__label" for="productQty">Cantidad</label>
                   </div>
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="mdl-textfield__input" type="number" step="0.01" id="productPrice" />
-                    <label class="mdl-textfield__label" for="productPrice">Precio Costo</label>
-                  </div>
+  <input class="mdl-textfield__input" type="number" step="0.01" id="productSuggestedPrice" />
+  <label class="mdl-textfield__label" for="productSuggestedPrice">Precio sugerido</label>
+</div>
+
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <input class="mdl-textfield__input" type="number" step="0.01" id="productDozenPrice" />
+  <label class="mdl-textfield__label" for="productDozenPrice">Precio por docena</label>
+</div>
+
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <input class="mdl-textfield__input" type="number" step="0.01" id="productWholesalePrice" />
+  <label class="mdl-textfield__label" for="productWholesalePrice">Precio mayorista</label>
+</div>
+
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <input class="mdl-textfield__input" type="number" step="0.01" id="productPoloPrice" />
+  <label class="mdl-textfield__label" for="productPoloPrice">Precio polo</label>
+</div>
+
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <input class="mdl-textfield__input" type="text" id="productSize" />
+  <label class="mdl-textfield__label" for="productSize">Talla</label>
+</div>
+
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <input class="mdl-textfield__input" type="text" id="productColor" />
+  <label class="mdl-textfield__label" for="productColor">Color</label>
+</div>
+
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                     <input class="mdl-textfield__input" type="text" id="productSupplier" />
                     <label class="mdl-textfield__label" for="productSupplier">Proveedor</label>

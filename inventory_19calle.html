@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Inventario – Super Panda 19 CALLE</title>
+  <title>Inventario 19 calle – Super Panda</title>
   <link rel="stylesheet" href="css/normalize.css" />
   <link rel="stylesheet" href="css/sweetalert2.css" />
   <link rel="stylesheet" href="css/material.min.css" />
@@ -20,8 +20,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/compressorjs@1.2.1/dist/compressor.min.js"></script>
   <script type="module">
-    let modoEdicion = false;
+  let modoEdicion = false;
     let idProductoEditado = null;
+    let rolUsuario = "";
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
     import {
@@ -70,6 +71,37 @@ const filtroProducto = document.getElementById("filtroProducto");
    
     const auth = getAuth(app);
     const db = getDatabase(app);
+
+    window.logout = function () {
+    signOut(auth).then(() => window.location.href = "index.html");
+  };
+  onAuthStateChanged(auth, user => {
+    if (!user) return window.location.href = "index.html";
+
+    get(ref(db, "usuarios/" + user.uid)).then(snap => {
+  const datos = snap.val() || {};
+
+  rolUsuario = datos.rol || "";
+
+  const spanInfo = `${user.email}<br><small>${rolUsuario}</small>`;
+  document.querySelectorAll(".navLateral-body-cr span")
+    .forEach(el => el.innerHTML = spanInfo);
+
+  // 🔒 Restricción para vendedor
+  if (rolUsuario === "vendedor") {
+    document.querySelector('a[href="#tabNewProduct"]').style.display = "none";
+
+    document.querySelector('#tabListProduct').classList.add("is-active");
+    document.querySelector('#tabNewProduct').classList.remove("is-active");
+  }
+});
+
+
+
+      const spanInfo = `${user.email}<br><small>${datos.rol || ""}</small>`;
+      document.querySelectorAll(".navLateral-body-cr span").forEach(el => el.innerHTML = spanInfo);
+    });
+
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         Swal.fire("Sesión cerrada", "Debes iniciar sesión para acceder", "info")
@@ -90,7 +122,12 @@ const filtroProducto = document.getElementById("filtroProducto");
   const codigo = document.getElementById("productCode").value.trim();
   const nombre = document.getElementById("productName").value.trim();
   const cantidad = parseInt(document.getElementById("productQty").value.trim());
-  const precio = parseFloat(document.getElementById("productPrice").value.trim());
+  const precioSugerido = parseFloat(document.getElementById("productSuggestedPrice").value.trim());
+const precioDocena = parseFloat(document.getElementById("productDozenPrice").value.trim());
+const precioMayorista = parseFloat(document.getElementById("productWholesalePrice").value.trim());
+const precioPolo = parseFloat(document.getElementById("productPoloPrice").value.trim());
+const talla = document.getElementById("productSize").value.trim();
+const color = document.getElementById("productColor").value.trim();
   const proveedor = document.getElementById("productSupplier").value.trim();
 
 
@@ -114,10 +151,16 @@ let producto = {
   codigo,
   nombre,
   cantidad,
-  precio,
   proveedor,
+  talla,
+  color,
+  precioSugerido,
+  precioDocena,
+  precioMayorista,
+  precioPolo,
   imagen: imagenURL
 };
+
 
   const idFinal = modoEdicion ? idProductoEditado : codigo;
   await set(ref(db, "productos_19calle/" + idFinal), producto);
@@ -162,8 +205,15 @@ item.innerHTML = `
   <span class="mdl-list__item-primary-content">
     ${imagenHTML}
     <strong>${prod.codigo}</strong>: ${prod.nombre}<br>
-    <span class="mdl-list__item-sub-title">Stock: ${prod.cantidad} | Q${prod.precio.toFixed(2)}</span>
-  </span>
+    <span class="mdl-list__item-sub-title">
+Stock: ${prod.cantidad} |
+Sugerido: Q${(prod.precioSugerido || 0).toFixed(2)} |
+Docena: Q${(prod.precioDocena || 0).toFixed(2)} |
+Mayorista: Q${(prod.precioMayorista || 0).toFixed(2)}
+<br>
+Talla: ${prod.talla || "-"} | Color: ${prod.color || "-"}
+</span>
+
 
   <span class="mdl-list__item-secondary-action">
     <button class="mdl-button mdl-js-button mdl-button--icon menu-btn" data-id="${id}">
@@ -277,7 +327,7 @@ document.getElementById("btn-pdf").addEventListener("click", () => {
     doc.addImage(img, "PNG", 15, 10, 20, 20);
     const fecha = new Date().toLocaleDateString();
     doc.setFontSize(16);
-    doc.text("INVENTARIO 19 CALLE – SUPER PANDA", 40, 20);
+    doc.text("INVENTARIO – SUPER PANDA 19 calle", 40, 20);
     doc.setFontSize(10);
     doc.text("Fecha: " + fecha, 40, 27);
 
@@ -292,7 +342,7 @@ document.getElementById("btn-pdf").addEventListener("click", () => {
         prod.codigo || id,
         prod.nombre || "",
         prod.cantidad || 0,
-        "Q" + (Number(prod.precio || 0)).toFixed(2),
+       "Q" + (Number(prod.precioSugerido || 0)).toFixed(2),
         prod.proveedor || ""
       ]));
 
@@ -337,7 +387,7 @@ document.getElementById("btn-pdf").addEventListener("click", () => {
     <div class="full-width navLateral-bg btn-menu"></div>
     <div class="full-width navLateral-body">
       <div class="full-width navLateral-body-logo text-center tittles">
-        <i class="zmdi zmdi-close btn-menu"></i> SUPER PANDA
+        <i class="zmdi zmdi-close btn-menu"></i> SUPER PANDA 19 Calle
       </div>
       <figure class="full-width" style="height: 77px;">
         <div class="navLateral-body-cl">
@@ -396,9 +446,35 @@ document.getElementById("btn-pdf").addEventListener("click", () => {
                     <label class="mdl-textfield__label" for="productQty">Cantidad</label>
                   </div>
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="mdl-textfield__input" type="number" step="0.01" id="productPrice" />
-                    <label class="mdl-textfield__label" for="productPrice">Precio Costo</label>
-                  </div>
+  <input class="mdl-textfield__input" type="number" step="0.01" id="productSuggestedPrice" />
+  <label class="mdl-textfield__label" for="productSuggestedPrice">Precio sugerido</label>
+</div>
+
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <input class="mdl-textfield__input" type="number" step="0.01" id="productDozenPrice" />
+  <label class="mdl-textfield__label" for="productDozenPrice">Precio por docena</label>
+</div>
+
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <input class="mdl-textfield__input" type="number" step="0.01" id="productWholesalePrice" />
+  <label class="mdl-textfield__label" for="productWholesalePrice">Precio mayorista</label>
+</div>
+
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <input class="mdl-textfield__input" type="number" step="0.01" id="productPoloPrice" />
+  <label class="mdl-textfield__label" for="productPoloPrice">Precio polo</label>
+</div>
+
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <input class="mdl-textfield__input" type="text" id="productSize" />
+  <label class="mdl-textfield__label" for="productSize">Talla</label>
+</div>
+
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <input class="mdl-textfield__input" type="text" id="productColor" />
+  <label class="mdl-textfield__label" for="productColor">Color</label>
+</div>
+
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                     <input class="mdl-textfield__input" type="text" id="productSupplier" />
                     <label class="mdl-textfield__label" for="productSupplier">Proveedor</label>

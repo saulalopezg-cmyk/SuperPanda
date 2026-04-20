@@ -17,68 +17,66 @@
   <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
   <script src="js/main.js"></script>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-    import {
-      getDatabase,
-      ref,
-      get, 
-      onValue
-    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+<script type="module">
 
-     const firebaseConfig = {
-    apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
-    authDomain: "superpanda-a89c0.firebaseapp.com",
-    projectId: "superpanda-a89c0",
-    storageBucket: "superpanda-a89c0.firebasestorage.app",
-    messagingSenderId: "730819312861",
-    appId: "1:730819312861:web:4a60912c859691d45a6f34"
-  };
+  
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const database = getDatabase(app);
+import { verificarRol, logoutSistema } from "./js/auth.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        get(ref(database, 'usuarios/' + user.uid)).then((snapshot) => {
-          const data = snapshot.val();
-          const rol = data?.rol || "cliente";
-          const spanInfo = `${user.email}<br><small>${rol}</small>`;
-          document.querySelectorAll(".navLateral-body-cr span").forEach(el => el.innerHTML = spanInfo);
-        });
-      } else {
-        window.location.href = "index.html";
-      }
-    });
+verificarRol([
+  "home.html",
+  "client.html",
+  "ventas.html",
+  "cuentas-cobrar.html",
+  "envio.html",
 
-    window.logout = function () {
-      signOut(auth).then(() => {
-        window.location.href = "index.html";
-      });
-    };
-    function contarRama(ruta, idElemento, filtroFn = null) {
+  "home_19calle.html",
+  "client_19calle.html",
+  "ventas_19calle.html",
+  "cuentas-cobrar_19calle.html",
+  "envio_19calle.html"
+]);
+
+window.logout = logoutSistema;
+
+const database = getDatabase();
+
+function contarRama(ruta, idElemento, filtroFn = null) {
+
+  const el = document.getElementById(idElemento);
+  if (!el) return;
+
+  const label = el.dataset.label || 'Total';
+
   onValue(ref(database, ruta), snapshot => {
+
     const datos = snapshot.val() || {};
-    let total = Object.keys(datos).length;
+
+    let total;
+
     if (filtroFn) {
       total = Object.values(datos).filter(filtroFn).length;
+    } else {
+      total = Object.keys(datos).length;
     }
-    document.getElementById(idElemento).innerHTML = `${total}<br><small>${document.getElementById(idElemento).innerText.split('\n')[1]}</small>`;
+
+    el.innerHTML = `${total}<br><small>${label}</small>`;
+
   });
+
 }
 
-contarRama("usuarios", "totalAdmins", u => u.rol === "admin");
+// CONTADORES
+contarRama("usuarios", "totalAdmins", u => u?.rol === "admin");
 contarRama("clientes", "totalClientes");
 contarRama("proveedores", "totalProveedores");
-contarRama("productos_19calle", "totalProductos");
-contarRama("ventas_19calle", "totalVentas");
-  </script>
+contarRama("productos", "totalProductos");
+contarRama("ventas", "totalVentas");
+
+</script>
+
+
 </head>
 
 <body>

@@ -24,7 +24,7 @@
   <div class="full-width navLateral-bg btn-menu"></div>
   <div class="full-width navLateral-body">
     <div class="full-width navLateral-body-logo text-center tittles">
-      <i class="zmdi zmdi-close btn-menu"></i> Ventas Plaza ZONA 7
+      <i class="zmdi zmdi-close btn-menu"></i> Ventas  ZONA 7
     </div>
     <figure class="full-width" style="height: 77px;">
       <div class="navLateral-body-cl">
@@ -44,6 +44,7 @@
         <li><a href="client.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-accounts"></i></div><div class="navLateral-body-cr hide-on-tablet">Clientes</div></a></li>
         <li><a href="sales.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-basket"></i></div><div class="navLateral-body-cr hide-on-tablet">Compras</div></a></li>
         <li><a href="providers.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-truck"></i></div><div class="navLateral-body-cr hide-on-tablet">Proveedores</div></a></li>
+        <li><a href="dashboard.html" class="full-width active"><div class="navLateral-body-cl"><i class="zmdi zmdi-chart"></i></div><div class="navLateral-body-cr hide-on-tablet">Dashboard</div></a></li>
         <li><a href="ventas.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div><div class="navLateral-body-cr hide-on-tablet">Ventas</div></a></li>
         <li><a href="cuentas-cobrar.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div><div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div></a></li>
         <li><a href="generar_xls.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div><div class="navLateral-body-cr hide-on-tablet">Generar XLS</div></a></li>
@@ -80,12 +81,14 @@
             <div class="full-width panel-tittle bg-primary text-center tittles">Registrar nueva venta</div>
             <div class="full-width panel-content">
               <form id="form-venta">
+                
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                  <select id="ventaCliente" class="mdl-textfield__input">
-                    <option value="">Selecciona un cliente</option>
-                  </select>
-                  <label class="mdl-textfield__label" for="ventaCliente"></label>
-                </div>
+  <input class="mdl-textfield__input" type="text" id="clienteVenta" list="clientesLista">
+  <label class="mdl-textfield__label">Cliente</label>
+  <datalist id="clientesLista"></datalist>
+</div>
+
+
 
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                   <input type="text" id="ventaVendedor" class="mdl-textfield__input" />
@@ -121,7 +124,7 @@
                   </label>
                   <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="modoPolo">
                     <input type="radio" id="modoPolo" class="mdl-radio__button" name="modoPrecio" value="polo">
-                    <span class="mdl-radio__label">Polo (precio manual)</span>
+                    <span class="mdl-radio__label">Polo</span>
                   </label>
                 </div>
                 <p class="text-center">
@@ -221,7 +224,8 @@
         .then(() => window.location.href = "index.html");
     }
   });
-  const clienteSelect  = document.getElementById("ventaCliente");
+  const clienteSelect  = document.getElementById("clienteVenta");
+const listaClientes  = document.getElementById("clientesLista");
   const vendedorInput  = document.getElementById("ventaVendedor");
   const productoSelect = document.getElementById("ventaProducto");
   const cantidadInput  = document.getElementById("ventaCantidad");
@@ -264,26 +268,37 @@
     const r = radiosModo.find(r => r.checked);
     return r ? r.value : "unitarios";
   }
-  function calcularPrecioVenta(prod, modo) {
-    const costo = obtenerCosto(prod);
-    const c = isNaN(costo) ? 0 : Number(costo);
-    switch (modo) {
-      case "mayorista": return +(c * 1.25).toFixed(2); 
-      case "docenas":   return +(c * 1.45).toFixed(2); 
-      case "unitarios": return +(c * 2.25).toFixed(2); 
-      case "polo":
-      default:          return +c.toFixed(2);      
-    }
+function obtenerPrecioProducto(prod, modo) {
+
+  switch (modo) {
+
+    case "mayorista":
+      return leerNumero(prod.precioMayorista);
+
+    case "docenas":
+      return leerNumero(prod.precioDocena);
+
+    case "unitarios":
+      return leerNumero(prod.precioUnitario);
+
+    case "polo":
+      return leerNumero(prod.precioPolo);
+
+    default:
+      return 0;
   }
+
+}
+
   window.addEventListener("DOMContentLoaded", () => {
     get(ref(db, "clientes")).then((snapshot) => {
       const data = snapshot.val();
       if (!data) return;
       Object.entries(data).forEach(([codigo, cliente]) => {
         const option = document.createElement("option");
-        option.value = codigo;
+option.value = `${cliente.nombre} ${cliente.apellido ?? ""}`.trim();
         option.textContent = `${cliente.nombre} ${cliente.apellido ?? ""}`.trim();
-        clienteSelect.appendChild(option);
+listaClientes.appendChild(option);
       });
     });
     get(ref(db, "productos")).then((snapshot) => {
@@ -293,44 +308,57 @@
         productosCache[codigo] = prod;
         const option = document.createElement("option");
         option.value = codigo;
-        option.textContent = `${prod.codigo ?? codigo} – ${prod.nombre}`;
+option.textContent = `${prod.codigo ?? codigo} – ${prod.nombre} (Stock: ${prod.cantidad ?? 0})`;
+
+if ((prod.cantidad ?? 0) <= 0) {
+  option.disabled = true;
+}
         productoSelect.appendChild(option);
       });
-      productoSelect.addEventListener("change", () => {
-        const codigo = productoSelect.value;
-        const prod = productosCache[codigo];
-        const modo = modoSeleccionado();
-        const precioCalc = calcularPrecioVenta(prod, modo);
-        const tf = precioInput.closest(".mdl-textfield");
-        precioInput.value = precioCalc.toFixed(2);
-        const esPolo = (modo === "polo");
-        precioInput.disabled = !esPolo;
-        tf && tf.classList.add("is-dirty");
+     productoSelect.addEventListener("change", () => {
+
+  const codigo = productoSelect.value;
+  const prod = productosCache[codigo];
+  if (!prod) return;
+
+  const modo = modoSeleccionado();
+  const precio = obtenerPrecioProducto(prod, modo);
+
+  precioInput.value = isNaN(precio) ? "0.00" : Number(precio).toFixed(2);
+  precioInput.disabled = true;
+
+  const tf = precioInput.closest(".mdl-textfield");
+  tf && tf.classList.add("is-dirty");
+
+  if (window.componentHandler) componentHandler.upgradeDom();
+
+});
+
         if (window.componentHandler) componentHandler.upgradeDom();
       });
-    });
     radiosModo.forEach(r => {
-      r.addEventListener("change", () => {
-        const codigo = productoSelect.value;
-        const prod = productosCache[codigo];
-        const modo = modoSeleccionado();
-        const tf = precioInput.closest(".mdl-textfield");
-        if (modo !== "polo") {
-          const precioCalc = calcularPrecioVenta(prod, modo);
-          precioInput.value = precioCalc.toFixed(2);
-          precioInput.disabled = true;
-        } else {
-          precioInput.disabled = false;
-          if (!precioInput.value) {
-            const costo = obtenerCosto(prod);
-            precioInput.value = isNaN(costo) ? "0.00" : Number(costo).toFixed(2);
-          }
-        }
-        tf && tf.classList.add("is-dirty");
-        if (window.componentHandler) componentHandler.upgradeDom();
-      });
-    });
+  r.addEventListener("change", () => {
+
+    const codigo = productoSelect.value;
+    const prod = productosCache[codigo];
+    if (!prod) return;
+
+    const modo = modoSeleccionado();
+    const precio = obtenerPrecioProducto(prod, modo);
+
+    precioInput.value = isNaN(precio) ? "0.00" : Number(precio).toFixed(2);
+    precioInput.disabled = true;
+
+    const tf = precioInput.closest(".mdl-textfield");
+    tf && tf.classList.add("is-dirty");
+
+    if (window.componentHandler) componentHandler.upgradeDom();
+
   });
+});
+});
+
+
   function renderizarCarrito() {
     tablaBody.innerHTML = "";
     let total = 0;
@@ -371,46 +399,7 @@
     const modo = modoSeleccionado();
     const costo = obtenerCosto(prod);
     let precioUnit;
-    if (modo !== "polo") {
-      precioUnit = calcularPrecioVenta(prod, modo);
-    } else {
-      const entrada = leerNumero(precioInput.value);
-      if (isNaN(entrada)) {
-        Swal.fire("Precio inválido", "Escribe un precio válido.", "warning");
-        return;
-      }
-      if (!isNaN(costo) && entrada < Number(costo)) {
-        Swal.fire("Precio no permitido", "El precio no puede ser menor al costo.", "error");
-        return;
-      }
-      precioUnit = +Number(entrada).toFixed(2);
-    }
-const precioSelect = document.getElementById("precioSelect");
-let valorAnteriorPrecio = precioSelect.value; 
-precioSelect.addEventListener("change", async (e) => {
-  const valorSeleccionado = e.target.value;
-  if (valorSeleccionado === "polo") {
-    const { value: pass } = await Swal.fire({
-      title: "Acceso restringido",
-      input: "password",
-      inputLabel: "Ingrese la contraseña para Precio Polo",
-      inputPlaceholder: "Contraseña",
-      inputAttributes: { maxlength: 10, autocapitalize: "off", autocorrect: "off" },
-      showCancelButton: true,
-      confirmButtonText: "Aceptar",
-      cancelButtonText: "Cancelar"
-    });
-    if (pass !== "1024") {
-      Swal.fire("Acceso denegado", "Contraseña incorrecta.", "error");
-      precioSelect.value = valorAnteriorPrecio;
-      if (window.componentHandler) componentHandler.upgradeDom();
-      return;
-    } else {
-      Swal.fire("Acceso concedido", "Puedes usar el Precio Polo.", "success");
-    }
-  }
-  valorAnteriorPrecio = precioSelect.value;
-});
+    precioUnit = obtenerPrecioProducto(prod, modo);
     const existente = carrito.find(p => p.codigo === codigo && p.modo === modo && p.precio === precioUnit);
     if (existente) {
       if ((existente.cantidad + cantidad) > (prod.cantidad ?? 0)) {
@@ -423,7 +412,7 @@ precioSelect.addEventListener("change", async (e) => {
         codigo,
         nombre: prod.nombre,
         modo,
-        precio: Number(precioUnit),
+        precio: Number(precioUnit || 0),
         cantidad
       });
     }
@@ -609,8 +598,8 @@ precioSelect.addEventListener("change", async (e) => {
     if (!venta) return;
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "letter" });
-    const clienteData = await get(ref(db, "clientes/" + venta.cliente)).then(s => s.val() || {});
-    const clienteNombre = clienteData.nombre ? `${clienteData.nombre} ${clienteData.apellido || ""}`.trim() : venta.cliente;
+const clienteData = { nombre: venta.cliente };
+const clienteNombre = clienteData.nombre || venta.cliente;
     const telefono = clienteData.telefono || "-";
     const direccion = clienteData.direccion || "-";
     const nit = clienteData.nit || "-";

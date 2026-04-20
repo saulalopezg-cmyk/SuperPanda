@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard General – Super Panda</title>
+
+  <link rel="stylesheet" href="css/normalize.css" />
+  <link rel="stylesheet" href="css/sweetalert2.css" />
+  <link rel="stylesheet" href="css/material.min.css" />
+  <link rel="stylesheet" href="css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="css/jquery.mCustomScrollbar.css" />
+  <link rel="stylesheet" href="css/main.css" />
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/jquery-1.11.2.min.js"><\/script>')</script>
+  <script src="js/material.min.js"></script>
+  <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    .dashboard-card {
+      border-radius: 8px;
+      padding: 20px;
+      color: #fff;
+      text-align: center;
+      min-height: 140px;
+      transition: all .3s ease;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,.15);
+    }
+
+    .dashboard-card h5 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      opacity: .95;
+    }
+
+    .dashboard-card h2 {
+      margin: 15px 0 0;
+      font-size: 32px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .bg-total {
+      background: linear-gradient(135deg, #1abc9c, #16a085);
+    }
+
+    .bg-hoy {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+    }
+
+    .bg-mes {
+      background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    }
+
+    .bg-credito {
+      background: linear-gradient(135deg, #e67e22, #d35400);
+    }
+
+    .bg-pendiente {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+    }
+
+    .dashboard-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .dashboard-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid #ececec;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .dashboard-list li:last-child {
+      border-bottom: none;
+    }
+
+    .dashboard-list strong {
+      color: #2c3e50;
+      font-size: 15px;
+    }
+
+    .tabla-dashboard {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: #fff;
+    }
+
+    .tabla-dashboard thead {
+      background: #f5f5f5;
+    }
+
+    .tabla-dashboard th {
+      padding: 14px 12px;
+      border-bottom: 2px solid #e0e0e0;
+      font-size: 13px;
+      font-weight: 700;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .tabla-dashboard td {
+      padding: 13px 12px;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .tabla-dashboard tbody tr:hover {
+      background: #fafafa;
+    }
+
+    .panel {
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .panel-tittle {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: .5px;
+      padding: 15px;
+      text-transform: uppercase;
+    }
+
+    .panel-content {
+      padding: 20px;
+    }
+
+    .bg-warning {
+      background: #f39c12 !important;
+      color: #fff !important;
+    }
+
+    @media screen and (max-width: 768px) {
+      .dashboard-card h2 {
+        font-size: 24px;
+      }
+
+      .tabla-dashboard {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="full-width navBar">
+    <div class="full-width navBar-options">
+      <i class="zmdi zmdi-more-vert btn-menu" id="btn-menu"></i>
+      <nav class="navBar-options-list">
+        <ul class="list-unstyle">
+          <li class="btn-exit" onclick="logout()">
+            <i class="zmdi zmdi-power"></i>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <section class="full-width navLateral">
+    <div class="full-width navLateral-bg btn-menu"></div>
+    <div class="full-width navLateral-body">
+      <div class="full-width navLateral-body-logo text-center tittles">
+        <i class="zmdi zmdi-close btn-menu"></i> SUPER PANDA
+      </div>
+
+      <figure class="full-width" style="height: 77px;">
+        <div class="navLateral-body-cl">
+          <img src="assets/img/logo.png" style="width:50px;" />
+        </div>
+        <figcaption class="navLateral-body-cr hide-on-tablet">
+          <span></span>
+        </figcaption>
+      </figure>
+
+      <div class="full-width tittles navLateral-body-tittle-menu">
+        <i class="zmdi zmdi-desktop-mac"></i>
+        <span class="hide-on-tablet"> MENÚ</span>
+      </div>
+
+      <nav class="full-width">
+        <ul class="full-width list-unstyle menu-principal">
+          <li>
+            <a href="home.html" class="full-width">
+              <div class="navLateral-body-cl"><i class="zmdi zmdi-view-dashboard"></i></div>
+              <div class="navLateral-body-cr hide-on-tablet">Inicio</div>
+            </a>
+          </li>
+
+          <li>
+            <a href="inventory.html" class="full-width">
+              <div class="navLateral-body-cl"><i class="zmdi zmdi-store"></i></div>
+              <div class="navLateral-body-cr hide-on-tablet">Inventario</div>
+            </a>
+          </li>
+
+          <li>
+            <a href="ventas.html" class="full-width">
+              <div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div>
+              <div class="navLateral-body-cr hide-on-tablet">Ventas</div>
+            </a>
+          </li>
+
+          <li>
+            <a href="cuentas-cobrar.html" class="full-width">
+              <div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div>
+              <div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div>
+            </a>
+          </li>
+
+          <li>
+            <a href="dashboard-general.html" class="full-width active">
+              <div class="navLateral-body-cl"><i class="zmdi zmdi-chart"></i></div>
+              <div class="navLateral-body-cr hide-on-tablet">Dashboard General</div>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+  <section class="full-width pageContent">
+    <div class="mdl-grid">
+
+      <div class="mdl-cell mdl-cell--4-col">
+        <div class="dashboard-card bg-total mdl-shadow--2dp">
+          <h5>Total Ventas General</h5>
+          <h2 id="totalVentas">Q0.00</h2>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--4-col">
+        <div class="dashboard-card bg-hoy mdl-shadow--2dp">
+          <h5>Ventas de Hoy</h5>
+          <h2 id="ventasHoy">Q0.00</h2>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--4-col">
+        <div class="dashboard-card bg-mes mdl-shadow--2dp">
+          <h5>Ventas del Mes</h5>
+          <h2 id="ventasMes">Q0.00</h2>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--6-col">
+        <div class="dashboard-card bg-credito mdl-shadow--2dp">
+          <h5>Ventas a Crédito</h5>
+          <h2 id="ventasCredito">Q0.00</h2>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--6-col">
+        <div class="dashboard-card bg-pendiente mdl-shadow--2dp">
+          <h5>Saldo Pendiente de Cobro</h5>
+          <h2 id="pendienteCobro">Q0.00</h2>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--6-col">
+        <div class="full-width panel mdl-shadow--2dp">
+          <div class="full-width panel-tittle bg-primary text-center tittles">
+            Ventas por Tienda
+          </div>
+          <div class="full-width panel-content">
+            <table class="tabla-dashboard">
+              <thead>
+                <tr>
+                  <th>Tienda</th>
+                  <th>Total Vendido</th>
+                </tr>
+              </thead>
+              <tbody id="tablaResumenTiendas"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--6-col">
+        <div class="full-width panel mdl-shadow--2dp">
+          <div class="full-width panel-tittle bg-success text-center tittles">
+            Top Vendedores
+          </div>
+          <div class="full-width panel-content">
+            <ul class="dashboard-list" id="listaVendedores"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--6-col">
+        <div class="full-width panel mdl-shadow--2dp">
+          <div class="full-width panel-tittle bg-primary text-center tittles">
+            Productos Más Vendidos
+          </div>
+          <div class="full-width panel-content">
+            <ul class="dashboard-list" id="listaProductos"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--6-col">
+        <div class="full-width panel mdl-shadow--2dp">
+          <div class="full-width panel-tittle bg-warning text-center tittles">
+            Resumen por Tienda
+          </div>
+          <div class="full-width panel-content">
+            <table class="tabla-dashboard">
+              <thead>
+                <tr>
+                  <th>Tienda</th>
+                  <th>Ventas Hoy</th>
+                  <th>Ventas Mes</th>
+                  <th>Total Ventas</th>
+                  <th>Crédito</th>
+                </tr>
+              </thead>
+              <tbody id="tablaTiendas"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--12-col">
+        <div class="full-width panel mdl-shadow--2dp">
+          <div class="full-width panel-tittle bg-primary text-center tittles">
+            Resumen por Vendedor
+          </div>
+          <div class="full-width panel-content">
+            <table class="tabla-dashboard">
+              <thead>
+                <tr>
+                  <th>Vendedor</th>
+                  <th>Tienda</th>
+                  <th>Total Ventas</th>
+                  <th>Ventas Hoy</th>
+                  <th>Ventas Mes</th>
+                  <th>Crédito</th>
+                </tr>
+              </thead>
+              <tbody id="tablaResumenVendedores"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+    import {
+      getDatabase,
+      ref,
+      get
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
+      authDomain: "superpanda-a89c0.firebaseapp.com",
+      projectId: "superpanda-a89c0",
+      storageBucket: "superpanda-a89c0.firebasestorage.app",
+      messagingSenderId: "730819312861",
+      appId: "1:730819312861:web:4a60912c859691d45a6f34"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    window.logout = function () {
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+
+      const userSnap = await get(ref(db, "usuarios/" + user.uid));
+      const datos = userSnap.val() || {};
+      const rolUsuario = datos.rol || "";
+
+      const spanInfo = `${user.email}<br><small>${rolUsuario}</small>`;
+      document.querySelectorAll(".navLateral-body-cr span")
+        .forEach(el => el.innerHTML = spanInfo);
+
+      if (rolUsuario !== "admin") {
+        Swal.fire({
+          icon: "error",
+          title: "Acceso restringido",
+          text: "Solo los administradores pueden acceder"
+        }).then(() => {
+          window.location.href = "home.html";
+        });
+        return;
+      }
+
+      cargarDashboard();
+    });
+
+    async function cargarDashboard() {
+      const [
+        snapZona7,
+        snap19,
+        snapCxcZona7,
+        snapCxc19
+      ] = await Promise.all([
+        get(ref(db, "ventas")),
+        get(ref(db, "ventas_19calle")),
+        get(ref(db, "cuentasPorCobrar")),
+        get(ref(db, "cuentasPorCobrar_19calle"))
+      ]);
+
+      const ventasZona7 = snapZona7.val() || {};
+      const ventas19 = snap19.val() || {};
+      const cuentasZona7 = snapCxcZona7.val() || {};
+      const cuentas19 = snapCxc19.val() || {};
+
+      const ventasCombinadas = [
+        ...Object.values(ventasZona7).map(v => ({ ...v, tienda: "Zona 7" })),
+        ...Object.values(ventas19).map(v => ({ ...v, tienda: "19 Calle" }))
+      ];
+
+      const cuentasCombinadas = [
+        ...Object.values(cuentasZona7),
+        ...Object.values(cuentas19)
+      ];
+
+      let totalVentas = 0;
+      let ventasHoy = 0;
+      let ventasMes = 0;
+      let ventasCredito = 0;
+      let pendiente = 0;
+
+      const vendedores = {};
+      const productos = {};
+      const resumenVendedores = {};
+      const resumenTiendas = {};
+
+      const hoy = new Date();
+      const hoyTexto = hoy.toISOString().split("T")[0];
+      const mesActual = hoy.getMonth();
+      const anioActual = hoy.getFullYear();
+
+      ventasCombinadas.forEach(v => {
+        const total = Number(v.total || 0);
+        totalVentas += total;
+
+        const fechaVenta = new Date(v.fecha);
+
+        const esHoy = v.fecha && v.fecha.startsWith(hoyTexto);
+        const esMes = fechaVenta.getMonth() === mesActual &&
+                      fechaVenta.getFullYear() === anioActual;
+
+        const esCredito =
+          v.tipoPago === "credito" ||
+          v.tipo === "credito" ||
+          v.credito === true;
+
+        if (esHoy) ventasHoy += total;
+        if (esMes) ventasMes += total;
+        if (esCredito) ventasCredito += total;
+
+        const vendedor = v.vendedor || v.usuario || "Sin asignar";
+        const tienda = v.tienda || "Sin tienda";
+
+        if (!resumenVendedores[vendedor]) {
+          resumenVendedores[vendedor] = {
+            tienda,
+            total: 0,
+            hoy: 0,
+            mes: 0,
+            credito: 0
+          };
+        }
+
+        resumenVendedores[vendedor].total += total;
+        if (esHoy) resumenVendedores[vendedor].hoy += total;
+        if (esMes) resumenVendedores[vendedor].mes += total;
+        if (esCredito) resumenVendedores[vendedor].credito += total;
+
+        vendedores[vendedor] = (vendedores[vendedor] || 0) + total;
+
+        if (!resumenTiendas[tienda]) {
+          resumenTiendas[tienda] = {
+            total: 0,
+            hoy: 0,
+            mes: 0,
+            credito: 0
+          };
+        }
+
+        resumenTiendas[tienda].total += total;
+        if (esHoy) resumenTiendas[tienda].hoy += total;
+        if (esMes) resumenTiendas[tienda].mes += total;
+        if (esCredito) resumenTiendas[tienda].credito += total;
+
+        if (v.productos) {
+          Object.values(v.productos).forEach(prod => {
+            const nombre = prod.nombre || "Producto";
+            const cantidad = Number(prod.cantidad || 0);
+            productos[nombre] = (productos[nombre] || 0) + cantidad;
+          });
+        }
+      });
+
+      cuentasCombinadas.forEach(c => {
+        pendiente += Number(c.saldo || 0);
+      });
+
+      document.getElementById("totalVentas").innerText = "Q" + totalVentas.toFixed(2);
+      document.getElementById("ventasHoy").innerText = "Q" + ventasHoy.toFixed(2);
+      document.getElementById("ventasMes").innerText = "Q" + ventasMes.toFixed(2);
+      document.getElementById("ventasCredito").innerText = "Q" + ventasCredito.toFixed(2);
+      document.getElementById("pendienteCobro").innerText = "Q" + pendiente.toFixed(2);
+
+      const tablaResumenTiendas = document.getElementById("tablaResumenTiendas");
+      tablaResumenTiendas.innerHTML = "";
+
+      Object.entries(resumenTiendas).forEach(([tienda, datos]) => {
+        tablaResumenTiendas.innerHTML += `
+          <tr>
+            <td>${tienda}</td>
+            <td>Q${datos.total.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      const tablaTiendas = document.getElementById("tablaTiendas");
+      tablaTiendas.innerHTML = "";
+
+      Object.entries(resumenTiendas).forEach(([tienda, datos]) => {
+        tablaTiendas.innerHTML += `
+          <tr>
+            <td>${tienda}</td>
+            <td>Q${datos.hoy.toFixed(2)}</td>
+            <td>Q${datos.mes.toFixed(2)}</td>
+            <td>Q${datos.total.toFixed(2)}</td>
+            <td>Q${datos.credito.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      const listaVendedores = document.getElementById("listaVendedores");
+      listaVendedores.innerHTML = "";
+
+      Object.entries(vendedores)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .forEach(([nombre, total]) => {
+          listaVendedores.innerHTML += `
+            <li>
+              <strong>${nombre}</strong><br>
+              Total vendido: Q${total.toFixed(2)}
+            </li>
+          `;
+        });
+
+      const listaProductos = document.getElementById("listaProductos");
+      listaProductos.innerHTML = "";
+
+      Object.entries(productos)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .forEach(([nombre, cantidad]) => {
+          listaProductos.innerHTML += `
+            <li>
+              <strong>${nombre}</strong><br>
+              Cantidad vendida: ${cantidad}
+            </li>
+          `;
+        });
+
+      const tablaResumenVendedores = document.getElementById("tablaResumenVendedores");
+      tablaResumenVendedores.innerHTML = "";
+
+      Object.entries(resumenVendedores)
+        .sort((a, b) => b[1].total - a[1].total)
+        .forEach(([nombre, datos]) => {
+          tablaResumenVendedores.innerHTML += `
+            <tr>
+              <td>${nombre}</td>
+              <td>${datos.tienda}</td>
+              <td>Q${datos.total.toFixed(2)}</td>
+              <td>Q${datos.hoy.toFixed(2)}</td>
+              <td>Q${datos.mes.toFixed(2)}</td>
+              <td>Q${datos.credito.toFixed(2)}</td>
+            </tr>
+          `;
+        });
+    }
+  </script>
+</body>
+</html>

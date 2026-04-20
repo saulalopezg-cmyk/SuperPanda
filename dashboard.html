@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard – Super Panda</title>
+
+  <link rel="stylesheet" href="css/normalize.css" />
+  <link rel="stylesheet" href="css/sweetalert2.css" />
+  <link rel="stylesheet" href="css/material.min.css" />
+  <link rel="stylesheet" href="css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="css/jquery.mCustomScrollbar.css" />
+  <link rel="stylesheet" href="css/main.css" />
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/jquery-1.11.2.min.js"><\\/script>')</script>
+  <script src="js/material.min.js"></script>
+  <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    .dashboard-card {
+      border-radius: 8px;
+      padding: 20px;
+      color: #fff;
+      text-align: center;
+      min-height: 140px;
+    }
+
+    .dashboard-card h5 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .dashboard-card h2 {
+      margin: 15px 0 0;
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    .bg-total { background: #1abc9c; }
+    .bg-hoy { background: #3498db; }
+    .bg-mes { background: #9b59b6; }
+    .bg-credito { background: #e67e22; }
+    .bg-pendiente { background: #e74c3c; }
+
+    .dashboard-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+      list-style: none;
+    }
+
+    .dashboard-list li:last-child {
+      border-bottom: none;
+    }
+
+    .tabla-dashboard {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .tabla-dashboard th,
+    .tabla-dashboard td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .tabla-dashboard th {
+      background: #f5f5f5;
+      font-weight: bold;
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+    import {
+      getDatabase,
+      ref,
+      get,
+      onValue
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDg4jxoL6LnaWVLqdfu48SdBfH-8T3hVzA",
+      authDomain: "superpanda-a89c0.firebaseapp.com",
+      projectId: "superpanda-a89c0",
+      storageBucket: "superpanda-a89c0.firebasestorage.app",
+      messagingSenderId: "730819312861",
+      appId: "1:730819312861:web:4a60912c859691d45a6f34"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let rolUsuario = "";
+
+    window.logout = function () {
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+
+      const snap = await get(ref(db, "usuarios/" + user.uid));
+      const datos = snap.val() || {};
+
+      rolUsuario = datos.rol || "";
+
+      const spanInfo = `${user.email}<br><small>${rolUsuario}</small>`;
+      document.querySelectorAll(".navLateral-body-cr span")
+        .forEach(el => el.innerHTML = spanInfo);
+
+      if (rolUsuario !== "admin") {
+        Swal.fire({
+          icon: "error",
+          title: "Acceso restringido",
+          text: "Solo los administradores pueden acceder al dashboard"
+        }).then(() => {
+          window.location.href = "home.html";
+        });
+        return;
+      }
+
+      cargarDashboard();
+    });
+
+    function cargarDashboard() {
+      onValue(ref(db, "ventas"), (snapshot) => {
+        const ventas = snapshot.val() || {};
+
+        let totalVentas = 0;
+        let ventasHoy = 0;
+        let ventasMes = 0;
+        let ventasCredito = 0;
+
+        const vendedores = {};
+        const productos = {};
+        const resumenVendedores = {};
+
+        const hoy = new Date();
+        const hoyTexto = hoy.toISOString().split("T")[0];
+        const mesActual = hoy.getMonth();
+        const anioActual = hoy.getFullYear();
+
+        Object.values(ventas).forEach(v => {
+          const total = Number(v.total || 0);
+          totalVentas += total;
+
+          const fechaVenta = new Date(v.fecha);
+
+          if (v.fecha && v.fecha.startsWith(hoyTexto)) {
+            ventasHoy += total;
+          }
+
+          if (
+            fechaVenta.getMonth() === mesActual &&
+            fechaVenta.getFullYear() === anioActual
+          ) {
+            ventasMes += total;
+          }
+
+          if (
+            v.tipoPago === "credito" ||
+            v.tipo === "credito" ||
+            v.credito === true
+          ) {
+            ventasCredito += total;
+          }
+
+          const vendedor = v.vendedor || v.usuario || "Sin asignar";
+          vendedores[vendedor] = (vendedores[vendedor] || 0) + total;
+
+          if (!resumenVendedores[vendedor]) {
+            resumenVendedores[vendedor] = {
+              total: 0,
+              hoy: 0,
+              mes: 0,
+              credito: 0
+            };
+          }
+
+          resumenVendedores[vendedor].total += total;
+
+          if (v.fecha && v.fecha.startsWith(hoyTexto)) {
+            resumenVendedores[vendedor].hoy += total;
+          }
+
+          if (
+            fechaVenta.getMonth() === mesActual &&
+            fechaVenta.getFullYear() === anioActual
+          ) {
+            resumenVendedores[vendedor].mes += total;
+          }
+
+          if (
+            v.tipoPago === "credito" ||
+            v.tipo === "credito" ||
+            v.credito === true
+          ) {
+            resumenVendedores[vendedor].credito += total;
+          }
+
+          if (v.productos) {
+            Object.values(v.productos).forEach(prod => {
+              const nombre = prod.nombre || "Producto";
+              const cantidad = Number(prod.cantidad || 0);
+              productos[nombre] = (productos[nombre] || 0) + cantidad;
+            });
+          }
+        });
+
+        document.getElementById("totalVentas").innerText = "Q" + totalVentas.toFixed(2);
+        document.getElementById("ventasHoy").innerText = "Q" + ventasHoy.toFixed(2);
+        document.getElementById("ventasMes").innerText = "Q" + ventasMes.toFixed(2);
+        document.getElementById("ventasCredito").innerText = "Q" + ventasCredito.toFixed(2);
+
+        onValue(ref(db, "cuentasPorCobrar"), (snapshotCxc) => {
+          const cuentas = snapshotCxc.val() || {};
+          let pendiente = 0;
+
+          Object.values(cuentas).forEach(c => {
+            pendiente += Number(c.saldo || 0);
+          });
+
+          document.getElementById("pendienteCobro").innerText = "Q" + pendiente.toFixed(2);
+        });
+
+        const topVendedores = Object.entries(vendedores)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5);
+
+        const listaVendedores = document.getElementById("listaVendedores");
+        listaVendedores.innerHTML = "";
+
+        topVendedores.forEach(([nombre, total]) => {
+          listaVendedores.innerHTML += `
+            <li>
+              <strong>${nombre}</strong><br>
+              Total vendido: Q${total.toFixed(2)}
+            </li>
+          `;
+        });
+
+        const topProductos = Object.entries(productos)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5);
+
+        const listaProductos = document.getElementById("listaProductos");
+        listaProductos.innerHTML = "";
+
+        topProductos.forEach(([nombre, cantidad]) => {
+          listaProductos.innerHTML += `
+            <li>
+              <strong>${nombre}</strong><br>
+              Cantidad vendida: ${cantidad}
+            </li>
+          `;
+        });
+
+        const tabla = document.getElementById("tablaResumenVendedores");
+        tabla.innerHTML = "";
+
+        Object.entries(resumenVendedores).forEach(([nombre, datos]) => {
+          tabla.innerHTML += `
+            <tr>
+              <td>${nombre}</td>
+              <td>Q${datos.total.toFixed(2)}</td>
+              <td>Q${datos.hoy.toFixed(2)}</td>
+              <td>Q${datos.mes.toFixed(2)}</td>
+              <td>Q${datos.credito.toFixed(2)}</td>
+            </tr>
+          `;
+        });
+      });
+    }
+  </script>
+</head>
+
+<body>
+  <div class="full-width navBar">
+    <div class="full-width navBar-options">
+      <i class="zmdi zmdi-more-vert btn-menu" id="btn-menu"></i>
+      <nav class="navBar-options-list">
+        <ul class="list-unstyle">
+          <li class="btn-exit" onclick="logout()">
+            <i class="zmdi zmdi-power"></i>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <section class="full-width navLateral">
+    <div class="full-width navLateral-bg btn-menu"></div>
+    <div class="full-width navLateral-body">
+      <div class="full-width navLateral-body-logo text-center tittles">
+        <i class="zmdi zmdi-close btn-menu"></i> SUPER PANDA
+      </div>
+
+      <figure class="full-width" style="height: 77px;">
+        <div class="navLateral-body-cl">
+          <img src="assets/img/logo.png" style="width:50px;" />
+        </div>
+        <figcaption class="navLateral-body-cr hide-on-tablet">
+          <span></span>
+        </figcaption>
+      </figure>
+
+      <div class="full-width tittles navLateral-body-tittle-menu">
+        <i class="zmdi zmdi-desktop-mac"></i>
+        <span class="hide-on-tablet"> MENÚ</span>
+      </div>
+
+      <nav class="full-width">
+        <ul class="full-width list-unstyle menu-principal">
+          <li><a href="home.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-view-dashboard"></i></div><div class="navLateral-body-cr hide-on-tablet">Inicio</div></a></li>
+          <li><a href="inventory.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-store"></i></div><div class="navLateral-body-cr hide-on-tablet">Inventario</div></a></li>
+          <li><a href="ventas.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div><div class="navLateral-body-cr hide-on-tablet">Ventas</div></a></li>
+          <li><a href="cuentas-cobrar.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div><div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div></a></li>
+          <li><a href="dashboard.html" class="full-width active"><div class="navLateral-body-cl"><i class="zmdi zmdi-chart"></i></div><div class="navLateral-body-cr hide-on-tablet">Dashboard</div></a></li>
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+  <section class="full-width pageContent">
+    <div class="mdl-grid">
+
+      <div class="mdl-cell mdl-cell--4-col">
+        <div class="dashboard-card bg-total mdl-shadow--2dp">
+          <h5>Total Ventas</h5>
+          <h2 id="totalVentas">Q0.00</h2>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--4-col">
+        <div class="dashboard-card bg-hoy mdl-shadow--2dp">
+          <h5>Ventas Hoy</h5>
+          <h2 id="ventasHoy">Q0.00</h2>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--4-col">
+        <div class="dashboard-card bg-mes mdl-shadow--2dp">
+          <h5>Ventas del Mes</h5>
+          <h2 id="ventasMes">Q0.00</h2>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--6-col">
+        <div class="dashboard-card bg-credito mdl-shadow--2dp">
+          <h5>Ventas a Crédito</h5>
+          <h2 id="ventasCredito">Q0.00</h2>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--6-col">
+        <div class="dashboard-card bg-pendiente mdl-shadow--2dp">
+          <h5>Saldo Pendiente de Cobro</h5>
+          <h2 id="pendienteCobro">Q0.00</h2>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--6-col">
+        <div class="full-width panel mdl-shadow--2dp">
+          <div class="full-width panel-tittle bg-primary text-center tittles">
+            Top Vendedores
+          </div>
+          <div class="full-width panel-content">
+            <ul class="dashboard-list" id="listaVendedores"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--6-col">
+        <div class="full-width panel mdl-shadow--2dp">
+          <div class="full-width panel-tittle bg-success text-center tittles">
+            Productos Más Vendidos
+          </div>
+          <div class="full-width panel-content">
+            <ul class="dashboard-list" id="listaProductos"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--12-col">
+        <div class="full-width panel mdl-shadow--2dp">
+          <div class="full-width panel-tittle bg-primary text-center tittles">
+            Resumen por Vendedor
+          </div>
+          <div class="full-width panel-content">
+            <table class="tabla-dashboard">
+              <thead>
+                <tr>
+                  <th>Vendedor</th>
+                  <th>Total Ventas</th>
+                  <th>Ventas Hoy</th>
+                  <th>Ventas Mes</th>
+                  <th>Crédito</th>
+                </tr>
+              </thead>
+              <tbody id="tablaResumenVendedores"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</body>
+</html>

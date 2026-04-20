@@ -40,7 +40,7 @@
     <div class="full-width navLateral-bg btn-menu"></div>
     <div class="full-width navLateral-body">
       <div class="full-width navLateral-body-logo text-center tittles">
-        <i class="zmdi zmdi-close btn-menu"></i> SUPER PANDA PLAZA NIXAB
+        <i class="zmdi zmdi-close btn-menu"></i> SUPER PANDA ZONA 7
       </div>
       <figure class="full-width" style="height: 77px;">
         <div class="navLateral-body-cl">
@@ -62,6 +62,8 @@
             </a>
           </li>
           <li>
+                      <li><a href="dashboard.html" class="full-width active"><div class="navLateral-body-cl"><i class="zmdi zmdi-chart"></i></div><div class="navLateral-body-cr hide-on-tablet">Dashboard</div></a></li>
+
             <a href="generar_xls.html" class="full-width active">
               <div class="navLateral-body-cl"><i class="zmdi zmdi-file"></i></div>
               <div class="navLateral-body-cr hide-on-tablet">Generar XLS</div>
@@ -111,6 +113,23 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
+
+window.logout = function () {
+    signOut(auth).then(() => window.location.href = "index.html");
+  };
+  onAuthStateChanged(auth, user => {
+    if (!user) return window.location.href = "index.html";
+
+    get(ref(db, "usuarios/" + user.uid)).then(snap => {
+      const datos = snap.val() || {};
+      if (datos.rol !== "admin") {
+        Swal.fire("Acceso restringido", "Solo para administradores", "error")
+          .then(() => window.location.href = "home.html");
+      }
+      const spanInfo = `${user.email}<br><small>${datos.rol || ""}</small>`;
+      document.querySelectorAll(".navLateral-body-cr span").forEach(el => el.innerHTML = spanInfo);
+    });
+  });
 
     // Logout global (onclick del botón de la barra)
     window.logout = async function () {

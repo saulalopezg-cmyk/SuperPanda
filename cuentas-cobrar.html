@@ -60,6 +60,7 @@
           <li><a href="inventory.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-store"></i></div><div class="navLateral-body-cr hide-on-tablet">Inventario</div></a></li>
           <li><a href="client.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-accounts"></i></div><div class="navLateral-body-cr hide-on-tablet">Clientes</div></a></li>
           <li><a href="sales.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-basket"></i></div><div class="navLateral-body-cr hide-on-tablet">Compras</div></a></li>
+                    <li><a href="dashboard.html" class="full-width active"><div class="navLateral-body-cl"><i class="zmdi zmdi-chart"></i></div><div class="navLateral-body-cr hide-on-tablet">Dashboard</div></a></li>
           <li><a href="providers.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-truck"></i></div><div class="navLateral-body-cr hide-on-tablet">Proveedores</div></a></li>
           <li><a href="ventas.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-shopping-cart"></i></div><div class="navLateral-body-cr hide-on-tablet">Ventas</div></a></li>
           <li><a href="cuentas-cobrar.html" class="full-width"><div class="navLateral-body-cl"><i class="zmdi zmdi-balance-wallet"></i></div><div class="navLateral-body-cr hide-on-tablet">Cuentas por cobrar</div></a></li>
@@ -147,16 +148,23 @@
   <script type="module">
 
 let clientesCache = {};
+let rolUsuario = "";
 
 
 
     import {
   getAuth,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signOut
   
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-
+import {
+  getStorage,
+  ref as sRef,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
 import {
@@ -177,6 +185,35 @@ import "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plug
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
+const storage = getStorage(app);
+
+
+window.logout = function () {
+    signOut(auth).then(() => window.location.href = "index.html");
+  };
+  onAuthStateChanged(auth, user => {
+  if (!user) return window.location.href = "index.html";
+
+  get(ref(db, "usuarios/" + user.uid)).then(snap => {
+    const datos = snap.val() || {};
+    rolUsuario = datos.rol || "";
+
+    const spanInfo = `${user.email}<br><small>${rolUsuario}</small>`;
+    document.querySelectorAll(".navLateral-body-cr span")
+      .forEach(el => el.innerHTML = spanInfo);
+
+    // 🔒 Restricción para vendedores
+    if (rolUsuario === "vendedor") {
+      // Ocultar pestaña historial
+      document.querySelector('a[href="#tabListaCxc"]').style.display = "none";
+
+      // Forzar que solo vea la pestaña de registro
+      document.querySelector('#tabRegistrarCxc').classList.add("is-active");
+      document.querySelector('#tabListaCxc').classList.remove("is-active");
+    }
+  });
+});
+
 
 onAuthStateChanged(auth, (user) => {
     get(ref(db, "clientes")).then(snap => {
@@ -320,26 +357,88 @@ filtroEstado.addEventListener("change", renderCuentas);
 
 window.abonar = function (id) {
   const cuenta = cuentas[id];
+
   Swal.fire({
     title: "Registrar abono",
-    input: "number",
-    inputLabel: `Saldo actual: Q${cuenta.saldo.toFixed(2)}`,
-    showCancelButton: true
+    html: `
+      <input id="swal-monto" class="swal2-input" type="number" placeholder="Monto del abono">
+      
+      <select id="swal-tipo" class="swal2-select">
+        <option value="efectivo">Efectivo</option>
+        <option value="voucher">Voucher / Transferencia</option>
+      </select>
+
+      <input id="swal-voucher" class="swal2-input" type="text" placeholder="Número de voucher" style="display:none;">
+
+      <input id="swal-imagen" class="swal2-file" type="file" accept="image/*" style="display:none;">
+    `,
+    showCancelButton: true,
+    confirmButtonText: "Guardar",
+    didOpen: () => {
+      const tipoSelect = document.getElementById("swal-tipo");
+      const voucherInput = document.getElementById("swal-voucher");
+      const imagenInput = document.getElementById("swal-imagen");
+
+      tipoSelect.addEventListener("change", () => {
+        const mostrar = tipoSelect.value === "voucher";
+
+        voucherInput.style.display = mostrar ? "block" : "none";
+        imagenInput.style.display = mostrar ? "block" : "none";
+      });
+    },
+    preConfirm: async () => {
+      const monto = parseFloat(document.getElementById("swal-monto").value);
+      const tipo = document.getElementById("swal-tipo").value;
+      const voucher = document.getElementById("swal-voucher").value.trim();
+      const imagenFile = document.getElementById("swal-imagen").files[0];
+
+      if (isNaN(monto) || monto <= 0 || monto > cuenta.saldo) {
+        Swal.showValidationMessage("Monto inválido");
+        return false;
+      }
+
+      if (tipo === "voucher" && !voucher) {
+        Swal.showValidationMessage("Debes ingresar el número de voucher");
+        return false;
+      }
+
+      let imagenURL = "";
+
+      if (tipo === "voucher" && imagenFile) {
+        const ruta = `abonos/${id}/${Date.now()}_${imagenFile.name}`;
+        const storageRef = sRef(storage, ruta);
+        const snapshot = await uploadBytes(storageRef, imagenFile);
+        imagenURL = await getDownloadURL(snapshot.ref);
+      }
+
+      return {
+        monto,
+        tipo,
+        voucher,
+        imagenURL
+      };
+    }
   }).then(res => {
-    const monto = parseFloat(res.value);
-    if (isNaN(monto) || monto <= 0 || monto > cuenta.saldo) return;
+    if (!res.isConfirmed) return;
+
+    const { monto, tipo, voucher, imagenURL } = res.value;
 
     cuenta.abonado += monto;
     cuenta.saldo -= monto;
+
     cuenta.movimientos.push({
       fecha: new Date().toISOString().split("T")[0],
       tipo: "abono",
+      metodo: tipo,
+      voucher: voucher || "",
+      imagen: imagenURL || "",
       monto
     });
 
     cuenta.estado = cuenta.saldo <= 0 ? "cancelado" : "pendiente";
+
     set(ref(db, "cuentasPorCobrar/" + id), cuenta).then(() => {
-      Swal.fire("Abono registrado", "", "success");
+      Swal.fire("Abono registrado", "Se guardó correctamente", "success");
     });
   });
 };
@@ -357,9 +456,16 @@ window.imprimir = function (id) {
     doc.text(`Dirección: ${cli.direccion || "-"}`, 20, 48);
     doc.text(`Venta: ${c.codigoVenta} – Fecha: ${c.fechaVenta}`, 20, 54);
 
-    const rows = c.movimientos.map(m => [m.fecha, m.tipo.toUpperCase(), "Q" + m.monto.toFixed(2)]);
+    const rows = c.movimientos.map(m => [
+  m.fecha,
+  m.tipo.toUpperCase(),
+  m.metodo ? m.metodo.toUpperCase() : "-",
+  m.voucher || "-",
+  "Q" + m.monto.toFixed(2)
+]);
+
     doc.autoTable({
-      head: [["Fecha", "Tipo", "Monto"]],
+      head: [["Fecha", "Tipo", "Método", "Voucher", "Monto"]],
       body: rows,
       startY: 60
     });
